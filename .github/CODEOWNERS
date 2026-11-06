@@ -1,8 +1,24 @@
-# Reemplazá los @usuarios por los usuarios reales de GitHub del equipo.
-# Quien figure aquí es asignado automáticamente como revisor de los PR que tocan esa carpeta.
+# Quien figura aquí es asignado automáticamente como revisor de los PR que tocan esa carpeta.
+# Cada usuario tiene que ser colaborador del repo (con permiso Write) para que GitHub lo tome.
+# Si una ruta coincide con varias líneas, gana la última.
 
-*                   @USUARIO_LIDER
-/frontend/          @USUARIO_FRONT
-/backend/           @USUARIO_BACK
-/backend/prisma/    @USUARIO_BACK
-/.github/           @USUARIO_LIDER
+# Por defecto: responsable del repo
+*                   @Estrellasaln0rte
+
+# Frontend: Marcela (Front 1) y De La Roca (Front 2)
+/frontend/          @Estrellasaln0rte @JADLRM005
+
+# Backend: Lizz (Back 2)
+# TODO: sumar a Zane (Back 1) y Josué (Back 3) cuando tengamos sus usuarios de GitHub
+/backend/           @lizzbb
+
+# Base de datos: Zane (Back 1)
+# TODO: reemplazar por el usuario de Zane
+/backend/prisma/    @lizzbb
+
+# Pruebas E2E: compartidas
+/e2e/               @Estrellasaln0rte @JADLRM005 @lizzbb
+
+# Pipeline y configuración del repo
+# TODO: sumar a Josué (Back 3, dueño del CI)
+/.github/           @Estrellasaln0rte

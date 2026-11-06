@@ -81,11 +81,13 @@ Un PR no se puede mergear si el pipeline está en rojo.
 
 ## Equipo
 
-| Rol | Integrante | GitHub |
-|---|---|---|
-| Líder / responsable del repo | Marcela | @... |
-| Frontend | | |
-| Backend | | |
+| Rol | Integrante | GitHub | Responsable de |
+|---|---|---|---|
+| Front 1 + responsable del repo | Marcela | @Estrellasaln0rte | Catálogo de recomendaciones, favoritas, tablero de ánimos, navegación |
+| Front 2 | De La Roca | @JADLRM005 | Login Google/GitHub, consentimiento y cámara, detección de emoción, cliente del backend |
+| Back 1 | Zane | (pendiente) | Supabase + Prisma: modelos, migraciones, consultas del tablero |
+| Back 2 | Lizz | @lizzbb | Servidor Express, integración con TMDB, regla ánimo→géneros, validación con Zod |
+| Back 3 | Josué | (pendiente) | Rutas protegidas, seguridad (helmet, CORS, rate limit), pruebas del back y CI |
 
 ---
 Proyecto Final · Programación Web · Universidad Rafael Landívar
