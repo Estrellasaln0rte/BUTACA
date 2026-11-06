@@ -1,0 +1,109 @@
+# Pipeline de Integración Continua de Butaca.
+# Corre en cada push y PR hacia dev y production. Si algo falla, el PR queda en rojo.
+name: CI
+
+on:
+  push:
+    branches: [dev, production]
+  pull_request:
+    branches: [dev, production]
+
+# Si se sube otro commit al mismo PR, se cancela la corrida anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend (lint + Prisma + pruebas)
+    runs-on: ubuntu-latest
+    env:
+      NODE_ENV: test
+      # Valores de ejemplo solo para validar el schema. Nada real.
+      DATABASE_URL: postgresql://user:pass@localhost:5432/butaca
+      DIRECT_URL: postgresql://user:pass@localhost:5432/butaca
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Lint
+        run: npm run lint --workspace backend
+      - name: Validar schema de Prisma
+        run: npm run prisma:validate --workspace backend
+      - name: Pruebas unitarias e integración (con cobertura)
+        run: npm run test:coverage --workspace backend
+      - name: Guardar reporte de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-backend
+          path: backend/coverage/
+          retention-days: 14
+
+  frontend:
+    name: Frontend (lint + build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Lint
+        run: npm run lint --workspace frontend
+      - name: Build
+        run: npm run build --workspace frontend
+
+  seguridad:
+    name: Seguridad (dependencias)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Auditar dependencias de producción
+        run: npm audit --omit=dev --audit-level=high
+
+  e2e:
+    name: E2E (Playwright)
+    # Solo en PRs hacia production: es la prueba final antes de entregar.
+    if: github.event_name == 'pull_request' && github.base_ref == 'production'
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: ¿Hay pruebas E2E?
+        id: check
+        run: |
+          if ls e2e/tests/*.spec.js >/dev/null 2>&1; then echo "hay=true" >> "$GITHUB_OUTPUT"; else echo "hay=false" >> "$GITHUB_OUTPUT"; echo "Todavía no hay pruebas E2E en e2e/tests/"; fi
+      - name: Instalar dependencias
+        if: steps.check.outputs.hay == 'true'
+        run: npm ci
+      - name: Instalar navegador
+        if: steps.check.outputs.hay == 'true'
+        run: npx playwright install --with-deps chromium
+      - name: Correr E2E
+        if: steps.check.outputs.hay == 'true'
+        run: npm run test:e2e
+      - name: Guardar reporte E2E
+        if: always() && steps.check.outputs.hay == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-e2e
+          path: playwright-report/
+          retention-days: 14

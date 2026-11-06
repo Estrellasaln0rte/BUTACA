@@ -1,0 +1,19 @@
+// Esquema de Prisma conectado a Supabase (PostgreSQL).
+// Docs: https://www.prisma.io/docs/orm/overview/databases/supabase
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // conexión con pooler (puerto 6543)
+  directUrl = env("DIRECT_URL")   // conexión directa para migraciones (puerto 5432)
+}
+
+// TODO(back): definir los modelos. Entidades que pide el proyecto:
+//  - Usuario (id de Supabase Auth)
+//  - Registro de ánimo (emoción detectada + fecha)
+//  - Recomendación (qué se recomendó para ese ánimo: géneros / ids de TMDB)
+//  - Favorito (película o serie de TMDB guardada por el usuario)
+// Recordatorio: NUNCA guardar la imagen de la cámara, solo la emoción.

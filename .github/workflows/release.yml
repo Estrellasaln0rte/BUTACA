@@ -1,0 +1,38 @@
+# Entrega: cada vez que algo llega a production, se arma una versión lista para desplegar
+# y se guarda como paquete descargable en la pestaña Actions.
+name: Release
+
+on:
+  push:
+    branches: [production]
+
+permissions:
+  contents: read
+
+jobs:
+  paquete:
+    name: Armar versión de entrega
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Instalar dependencias
+        run: npm ci
+      - name: Build del frontend
+        run: npm run build --workspace frontend
+      - name: Armar paquete
+        run: |
+          mkdir -p entrega
+          cp -r frontend/dist entrega/frontend
+          mkdir -p entrega/backend
+          cp -r backend/src backend/prisma backend/package.json backend/.env.example entrega/backend/
+          cp package.json package-lock.json README.md entrega/
+      - name: Publicar paquete
+        uses: actions/upload-artifact@v4
+        with:
+          name: butaca-${{ github.sha }}
+          path: entrega/
+          retention-days: 30

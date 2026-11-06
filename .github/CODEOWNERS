@@ -1,0 +1,8 @@
+# Reemplazá los @usuarios por los usuarios reales de GitHub del equipo.
+# Quien figure aquí es asignado automáticamente como revisor de los PR que tocan esa carpeta.
+
+*                   @USUARIO_LIDER
+/frontend/          @USUARIO_FRONT
+/backend/           @USUARIO_BACK
+/backend/prisma/    @USUARIO_BACK
+/.github/           @USUARIO_LIDER
