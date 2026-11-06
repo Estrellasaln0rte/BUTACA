@@ -33,7 +33,7 @@ BUTACA/
 │   │   └── server.js    # levanta el servidor
 │   └── tests/         # unit/ e integration/
 ├── e2e/               # pruebas Playwright
-├── docs/              # arquitectura, decisiones, guía del repo
+├── docs/              # arquitectura y contrato de la API
 └── .github/           # CI, plantillas de PR e issues, CODEOWNERS
 ```
 
