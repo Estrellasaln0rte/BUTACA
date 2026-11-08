@@ -6,7 +6,7 @@ export function createRequireAuth(verifyToken) {
     const header = req.header('authorization') ?? '';
     const [scheme, token] = header.split(' ');
 
-    if (scheme !== 'Bearer' || !token) {
+    if (scheme?.toLowerCase() !== 'bearer' || !token) {
       return res.status(401).json({ error: 'Falta el token de sesión' });
     }
 
