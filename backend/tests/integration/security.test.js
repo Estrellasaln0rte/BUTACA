@@ -41,8 +41,8 @@ describe('seguridad', () => {
   it('rate limit: devuelve 429 al pasarse del límite', async () => {
     const app = build({ limits: { general: { limit: 3 } } });
     const codes = [];
-    for (let i = 0; i < 5; i++) codes.push((await request(app).get('/api/health')).status);
-    expect(codes).toEqual([200, 200, 200, 429, 429]);
+    for (let i = 0; i < 5; i++) codes.push((await request(app).get('/api/favorites')).status);
+    expect(codes).toEqual([401, 401, 401, 429, 429]);
   });
 
   it('el límite estricto protege /api/recommendations', async () => {
@@ -95,10 +95,22 @@ describe('seguridad', () => {
     spy.mockRestore();
   });
 
-    it('en producción rechaza HTTP plano (426) y nunca redirige según el Host', async () => {
-    const res = await request(build({ nodeEnv: 'production' })).get('/api/health').set('Host', 'sitio-malo.com');
+  it('en producción rechaza HTTP plano (426) y nunca redirige según el Host', async () => {
+    const res = await request(build({ nodeEnv: 'production' })).get('/api/favorites').set('Host', 'sitio-malo.com');
     expect(res.status).toBe(426);
     expect(res.headers.location).toBeUndefined();
+  });
+
+  it('en producción /api/health responde 200 aunque llegue por HTTP interno (chequeo de salud)', async () => {
+    const res = await request(build({ nodeEnv: 'production' })).get('/api/health');
+    expect(res.status).toBe(200);
+  });
+
+  it('/api/health no se ve afectado por el rate limit', async () => {
+    const app = build({ limits: { general: { limit: 1 } } });
+    const codes = [];
+    for (let i = 0; i < 4; i++) codes.push((await request(app).get('/api/health')).status);
+    expect(codes).toEqual([200, 200, 200, 200]);
   });
 
   it('CORS ignora la "/" final de FRONTEND_URL', async () => {
