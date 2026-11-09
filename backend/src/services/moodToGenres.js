@@ -1,7 +1,7 @@
 // Regla ánimo → géneros de TMDB.
 //
 // Criterio: recomendar algo que ayude con el ánimo detectado, no solo que lo refleje
-// (triste → algo que levante; enojado → algo para descargar; con miedo → algo tranquilo).
+// (triste → algo que levante; enojado → algo para descargar; con miedo → algo para evadirse).
 // Si el equipo cambia el criterio, se cambia SOLO la tabla MOOD_GENRES.
 //
 // TMDB usa IDs distintos para películas y series, y algunos géneros no existen en series
@@ -44,7 +44,7 @@ export const MOOD_GENRES = Object.freeze({
     happy: [M.COMEDY, M.ADVENTURE, M.MUSIC], // mantener la buena racha
     sad: [M.COMEDY, M.ANIMATION, M.FAMILY], // levantar el ánimo
     angry: [M.ACTION, M.THRILLER], // descargar la energía
-    fearful: [M.ANIMATION, M.FAMILY, M.COMEDY], // algo tranquilo y seguro
+    fearful: [M.ADVENTURE, M.FANTASY, M.COMEDY], // evasión ligera, lejos de lo que asusta
     disgusted: [M.ROMANCE, M.FANTASY], // algo amable para limpiar la sensación
     surprised: [M.MYSTERY, M.SCIENCE_FICTION], // seguir con la intriga
     neutral: [M.DRAMA, M.ADVENTURE, M.SCIENCE_FICTION], // variedad para descubrir
@@ -53,7 +53,7 @@ export const MOOD_GENRES = Object.freeze({
     happy: [T.COMEDY, T.ACTION_ADVENTURE],
     sad: [T.COMEDY, T.ANIMATION, T.FAMILY],
     angry: [T.ACTION_ADVENTURE, T.CRIME],
-    fearful: [T.ANIMATION, T.FAMILY, T.COMEDY],
+    fearful: [T.ACTION_ADVENTURE, T.SCI_FI_FANTASY, T.COMEDY], // en series no hay Aventura ni Fantasía por separado
     disgusted: [T.FAMILY, T.SCI_FI_FANTASY],
     surprised: [T.MYSTERY, T.SCI_FI_FANTASY],
     neutral: [T.DRAMA, T.SCI_FI_FANTASY],
