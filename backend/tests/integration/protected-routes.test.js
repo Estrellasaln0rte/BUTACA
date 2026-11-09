@@ -105,6 +105,34 @@ describe('ánimos y tablero', () => {
     expect(res.body.emotion).toBe('happy');
   });
 
+  it('GET /api/moods devuelve los ánimos del usuario', async () => {
+    const app = build();
+    await request(app).post('/api/moods').set(ana).send({ emotion: 'happy' });
+    await request(app).post('/api/moods').set(ana).send({ emotion: 'sad' });
+    await request(app).post('/api/moods').set(beto).send({ emotion: 'angry' });
+
+    const res = await request(app).get('/api/moods').set(ana);
+    expect(res.status).toBe(200);
+    expect(res.body.items.map((m) => m.emotion)).toEqual(['happy', 'sad']);
+  });
+
+  it('GET /api/moods respeta el parámetro limit', async () => {
+    const app = build();
+    for (const emotion of ['happy', 'sad', 'angry']) {
+      await request(app).post('/api/moods').set(ana).send({ emotion });
+    }
+
+    const res = await request(app).get('/api/moods?limit=2').set(ana);
+    expect(res.status).toBe(200);
+    expect(res.body.items).toHaveLength(2);
+  });
+
+  it('GET /api/moods rechaza un limit inválido (400)', async () => {
+    const app = build();
+    expect((await request(app).get('/api/moods?limit=0').set(ana)).status).toBe(400);
+    expect((await request(app).get('/api/moods?limit=999').set(ana)).status).toBe(400);
+  });
+
   it('rechaza una imagen escondida en el body', async () => {
     const res = await request(build())
       .post('/api/moods')

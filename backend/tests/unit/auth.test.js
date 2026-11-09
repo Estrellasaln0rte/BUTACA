@@ -32,6 +32,12 @@ describe('requireAuth', () => {
     expect(next).toHaveBeenCalledWith();
   });
 
+  it('acepta el esquema "bearer" sin importar mayúsculas', async () => {
+    const { req, next } = await run({ authorization: 'bearer ok' }, async () => ({ id: 'u1' }));
+    expect(req.user).toEqual({ id: 'u1' });
+    expect(next).toHaveBeenCalledWith();
+  });
+
   it('pasa el error a next si el verificador falla', async () => {
     const boom = new Error('supabase caído');
     const { next } = await run({ authorization: 'Bearer ok' }, async () => {

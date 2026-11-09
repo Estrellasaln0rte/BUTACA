@@ -26,10 +26,10 @@ export function createApp({
 
   if (nodeEnv === 'production') {
     app.set('trust proxy', 1); // detrás de un proxy (Render, Railway...) para IP real y req.secure
-    app.use(enforceHttps);
   }
 
   app.use(helmet());
+
   // El header Origin nunca trae "/" final: normalizamos para no romper CORS por un detalle del .env.
   // Si no hay URL configurada, no se permite ningún origen (nunca "*").
   const allowedOrigin = frontendUrl ? frontendUrl.replace(/\/+$/, '') : false;
@@ -40,12 +40,20 @@ export function createApp({
       allowedHeaders: ['Content-Type', 'Authorization'],
     }),
   );
-  app.use(express.json({ limit: '10kb' })); // una emoción pesa bytes; nada de imágenes
-  app.use('/api', generalLimiter(limits.general));
 
+  // /api/health va ANTES de enforceHttps y del rate limit: la plataforma de despliegue revisa la salud
+  // por HTTP interno (sin X-Forwarded-Proto) y con mucha frecuencia; si recibiera 426 o 429,
+  // marcaría el deploy como caído.
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok' });
   });
+
+  if (nodeEnv === 'production') {
+    app.use(enforceHttps);
+  }
+
+  app.use(express.json({ limit: '10kb' })); // una emoción pesa bytes; nada de imágenes
+  app.use('/api', generalLimiter(limits.general));
 
   const requireAuth = createRequireAuth(verifyToken);
 
