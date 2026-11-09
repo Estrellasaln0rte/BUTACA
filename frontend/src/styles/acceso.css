@@ -1,0 +1,268 @@
+/* Estilos del login, la sesión y la detección de ánimo (Front 2). */
+.acceso,
+.deteccion,
+.barra-sesion,
+.acceso-mensaje {
+  --telon: #1a0d13;
+  --butaca: #2a1520;
+  --butaca-clara: #3a1e2c;
+  --marquesina: #f0b54a;
+  --pantalla: #f6ead8;
+  --polvo: #c4a9b2;
+  --error: #ff9b8f;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--pantalla);
+}
+
+body {
+  margin: 0;
+  background: #1a0d13;
+}
+
+.acceso-mensaje {
+  padding: 2rem 1.25rem;
+  text-align: center;
+  color: #c4a9b2;
+}
+
+.acceso :focus-visible,
+.deteccion :focus-visible,
+.barra-sesion :focus-visible {
+  outline: 3px solid var(--marquesina);
+  outline-offset: 3px;
+}
+
+/* Login */
+.acceso {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(240, 181, 74, 0.18), transparent 70%), var(--telon);
+}
+
+.acceso-tarjeta {
+  width: min(100%, 26rem);
+  padding: 2.25rem 2rem;
+  border-radius: 20px;
+  background: var(--butaca);
+  border: 1px solid var(--butaca-clara);
+  text-align: center;
+}
+
+.acceso-titulo {
+  margin: 0 0 0.75rem;
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--marquesina);
+}
+
+.acceso-texto {
+  margin: 0 0 1.75rem;
+  color: var(--polvo);
+  line-height: 1.55;
+}
+
+.acceso-botones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.boton-proveedor {
+  font: inherit;
+  font-weight: 700;
+  padding: 0.85rem 1rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+}
+
+.boton-google {
+  background: #ffffff;
+  color: #1f1f1f;
+}
+
+.boton-github {
+  background: #24292f;
+  color: #ffffff;
+  border: 1px solid #57606a;
+}
+
+.boton-proveedor:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.acceso-error {
+  margin: 1rem 0 0;
+  color: var(--error);
+}
+
+.acceso-nota {
+  margin: 1.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--polvo);
+}
+
+/* Barra de sesión */
+.barra-sesion {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--butaca);
+  border-bottom: 1px solid var(--butaca-clara);
+}
+
+.barra-sesion-marca {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--marquesina);
+  margin-right: auto;
+}
+
+.barra-sesion-usuario {
+  color: var(--polvo);
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barra-sesion-salir {
+  font: inherit;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--butaca-clara);
+  background: transparent;
+  color: var(--pantalla);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Detección */
+.deteccion {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.deteccion-permiso,
+.deteccion-camara,
+.deteccion-resultado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.deteccion-camara[hidden] {
+  display: none;
+}
+
+.deteccion-titulo {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.deteccion-texto {
+  margin: 0;
+  color: var(--polvo);
+  max-width: 34rem;
+  line-height: 1.55;
+}
+
+.deteccion-privacidad {
+  margin: 0.5rem 0;
+  padding: 1.1rem 1.25rem 1.1rem 2.5rem;
+  text-align: left;
+  border-radius: 14px;
+  background: var(--butaca);
+  border: 1px solid var(--butaca-clara);
+  color: var(--pantalla);
+  line-height: 1.6;
+}
+
+.deteccion-privacidad li + li {
+  margin-top: 0.35rem;
+}
+
+.deteccion-marco {
+  width: min(100%, 30rem);
+  aspect-ratio: 4 / 3;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #000;
+  border: 3px solid var(--butaca-clara);
+}
+
+.deteccion-marco.leyendo {
+  border-color: var(--marquesina);
+  box-shadow: 0 0 0 6px rgba(240, 181, 74, 0.2);
+}
+
+.deteccion-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.deteccion-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.deteccion-boton {
+  font: inherit;
+  font-weight: 700;
+  padding: 0.8rem 1.6rem;
+  border-radius: 999px;
+  border: none;
+  background: var(--marquesina);
+  color: #2a1408;
+  cursor: pointer;
+}
+
+.deteccion-boton.secundario {
+  background: transparent;
+  color: var(--pantalla);
+  border: 1px solid var(--butaca-clara);
+}
+
+.deteccion-boton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.deteccion-emoji {
+  font-size: 6rem;
+  line-height: 1;
+}
+
+.deteccion-error {
+  margin: 1.25rem 0 0;
+  padding: 0.85rem 1rem;
+  border-left: 3px solid var(--error);
+  background: rgba(255, 155, 143, 0.08);
+  color: var(--error);
+  text-align: left;
+}
+
+.deteccion-aviso {
+  margin: 1rem 0 0;
+  color: var(--polvo);
+  font-size: 0.9rem;
+}
