@@ -39,7 +39,7 @@ BUTACA/
 
 ## Cómo correrlo localmente
 
-Requisitos: Node 20+ y npm.
+Requisitos: Node 22+ y npm.
 
 ```bash
 git clone <url-del-repo>
