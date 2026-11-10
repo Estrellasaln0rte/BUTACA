@@ -244,11 +244,15 @@ describe('HTTP y repositorios conectados', () => {
     expect(prisma.recommendation.createMany).not.toHaveBeenCalled();
   });
 
-  it('espera la persistencia y devuelve el 500 genérico si falla, sin filtrar detalles', async () => {
+  it('si falla el historial igual responde 200 con las recomendaciones y lo registra en el log', async () => {
     const { app, prisma } = build();
     prisma.recommendation.createMany.mockRejectedValueOnce(new Error('Detalle interno simulado'));
     const response = await request(app).get('/api/recommendations?emotion=sad').set(ana);
-    expect(response.status).toBe(500);
-    expect(response.body).toEqual({ error: 'Error interno del servidor' });
+    expect(response.status).toBe(200);
+    expect(response.body.items).toEqual(RESULT.items);
+    expect(JSON.stringify(response.body)).not.toContain('Detalle interno simulado');
+    expect(prisma.recommendation.createMany).toHaveBeenCalledTimes(1);
+    expect(prisma.rows.recommendations).toEqual([]);
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('[historial]'), 'Detalle interno simulado');
   });
 });

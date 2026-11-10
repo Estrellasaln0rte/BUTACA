@@ -29,14 +29,33 @@ Documentar aquí cada endpoint a medida que se acuerde (método, ruta, body, res
 |---|---|---|---|---|
 | GET | `/api/health` | — | `{ status: "ok" }` | ✅ |
 | GET | `/api/recommendations?emotion=sad&mediaType=movie&page=1` | — | `{ emotion, mediaType, genres: [{ id, name }], page, totalPages, totalResults, items: [{ tmdbId, mediaType, title, overview, posterPath, releaseDate, rating }] }`; 502 si TMDB falla | 🔒 ✅ |
-| GET | `/api/favorites` | — | `{ items: [{ id, tmdbId, mediaType, title, posterPath }] }` | 🔒 🚧 |
-| POST | `/api/favorites` | `{ tmdbId, mediaType: "movie" o "tv", title, posterPath? }` | favorito creado (201); 409 si ya existe | 🔒 🚧 |
-| DELETE | `/api/favorites/:mediaType/:tmdbId` | — | 204 (404 si no existe) | 🔒 🚧 |
-| POST | `/api/moods` | `{ emotion, confidence? }` | ánimo registrado (201) | 🔒 🚧 |
-| GET | `/api/moods?limit=50` | — | `{ items: [...] }` | 🔒 🚧 |
-| GET | `/api/dashboard?days=30` | — | `{ days, moodsOverTime, recommendedGenres }` | 🔒 🚧 |
+| GET | `/api/favorites` | — | `{ items: [favorito] }`, del más reciente al más antiguo | 🔒 ✅ |
+| POST | `/api/favorites` | `{ tmdbId, mediaType: "movie" o "tv", title, posterPath? }` | el favorito creado (201); 409 si ya existe | 🔒 ✅ |
+| DELETE | `/api/favorites/:mediaType/:tmdbId` | — | 204 (404 si no existe) | 🔒 ✅ |
+| POST | `/api/moods` | `{ emotion, confidence? }` | el ánimo registrado (201) | 🔒 ✅ |
+| GET | `/api/moods?limit=50` | — | `{ items: [ánimo] }`: los últimos `limit` (1 a 200) en orden cronológico | 🔒 ✅ |
+| GET | `/api/dashboard?days=30` | — | `{ days, moodsOverTime, recommendedGenres }` (ver abajo) | 🔒 ✅ |
 
-🔒 = exige sesión. ✅ = funcionando. 🚧 = rutas y validaciones listas; falta conectar el repositorio de Prisma.
+🔒 = exige sesión. ✅ = funcionando, conectado a Supabase (PostgreSQL) mediante Prisma.
+
+**Forma de los registros** (`id` es un UUID; las fechas llegan como texto ISO 8601):
+
+- favorito: `{ id, userId, tmdbId, mediaType, title, posterPath, createdAt }`
+- ánimo: `{ id, userId, emotion, confidence, createdAt }` (`confidence` puede ser `null`)
+
+`userId` siempre es el de la sesión: nunca se acepta en el body ni en la query. El perfil del usuario se crea solo la primera vez que guarda algo.
+
+**Dashboard** (`days` de 1 a 365, por defecto 30; cuenta los últimos `days` períodos de 24 horas):
+
+```json
+{
+  "days": 30,
+  "moodsOverTime": [{ "emotion": "sad", "at": "2026-11-10T12:00:00.000Z" }],
+  "recommendedGenres": [{ "id": 35, "name": "Comedia", "mediaType": "movie", "count": 20 }]
+}
+```
+
+`moodsOverTime` va en orden cronológico. `recommendedGenres` sale del historial de recomendaciones, ordenado de mayor a menor `count`; películas y series se cuentan por separado. `count` es la cantidad de **títulos** recomendados con ese género (una consulta que devolvió 20 títulos suma 20).
 
 **Emociones válidas** (`emotion`): `neutral`, `happy`, `sad`, `angry`, `fearful`, `disgusted`, `surprised`. No se aceptan campos extra (nunca una imagen).
 
@@ -60,6 +79,7 @@ Documentar aquí cada endpoint a medida que se acuerde (método, ruta, body, res
 - `genres[].name` viene en español para mostrarlo en la interfaz ("Te recomendamos Comedia y Animación").
 - Límite estricto: 20 solicitudes por minuto (gasta cuota de TMDB).
 - Si TMDB falla o tarda más de 5 segundos responde `502`; el detalle solo queda en el log del servidor.
+- **Guarda historial:** cada consulta registra los títulos recomendados (`emotion`, `mediaType`, `tmdbId` y los géneros buscados) para el dashboard. Por eso, aunque es un `GET`, no conviene llamarla en revisiones contra la base real. Si el historial no se puede guardar, la respuesta no cambia (200 con las recomendaciones) y el error queda en el log.
 
 ### Regla ánimo → géneros
 
