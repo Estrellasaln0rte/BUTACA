@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
-import { Link, Navigate, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   agregarFavorita,
   buscarTitulos,
@@ -162,6 +162,16 @@ export default function Recomendaciones() {
 
   const { usuario } = useSesion();
 
+  // Solo la primera carga que viene de Detectar va al historial del tablero (history=true).
+  // Se lee una vez al montar y después se borra ese aviso: así recargar o volver atrás no lo repite.
+  const ubicacion = useLocation();
+  const navegar = useNavigate();
+  const historialPendiente = useRef(ubicacion.state?.desdeDeteccion === true);
+
+  useEffect(() => {
+    if (ubicacion.state?.desdeDeteccion) navegar({ search: ubicacion.search }, { replace: true, state: null });
+  }, [ubicacion.state, ubicacion.search, navegar]);
+
   useEffect(() => {
     if (valida) guardarUltimaEmocion(usuario?.id, emocion);
   }, [valida, usuario?.id, emocion]);
@@ -176,8 +186,10 @@ export default function Recomendaciones() {
     async (numero) => {
       setCargando(true);
       setError('');
+      const guardarEnHistorial = numero === 1 && historialPendiente.current;
+      historialPendiente.current = false;
       try {
-        const datos = await obtenerRecomendaciones(emocion, tipo, numero);
+        const datos = await obtenerRecomendaciones(emocion, tipo, numero, guardarEnHistorial);
         setGeneros(datos.genres ?? []);
         setTotalPaginas(Math.min(datos.totalPages ?? 1, 500));
         setPagina(numero);
