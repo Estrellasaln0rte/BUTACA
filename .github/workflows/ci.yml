@@ -77,31 +77,31 @@ jobs:
 
   e2e:
     name: E2E (Playwright)
-    # Solo en PRs hacia production: es la prueba final antes de entregar.
-    if: github.event_name == 'pull_request' && github.base_ref == 'production'
-    needs: [backend, frontend]
+    # Corre en todos los push y PR hacia dev y production. Usa un Supabase y una API de mentira
+    # (e2e/tests/fixtures.js), así que no necesita secretos.
+    needs: [frontend]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
-      - name: ¿Hay pruebas E2E?
-        id: check
+      - name: Verificar que existan pruebas E2E
         run: |
-          if ls e2e/tests/*.spec.js >/dev/null 2>&1; then echo "hay=true" >> "$GITHUB_OUTPUT"; else echo "hay=false" >> "$GITHUB_OUTPUT"; echo "Todavía no hay pruebas E2E en e2e/tests/"; fi
+          if ! ls e2e/tests/*.spec.js >/dev/null 2>&1; then
+            echo "::error::No hay pruebas E2E en e2e/tests/. Son requisito de entrega."
+            exit 1
+          fi
       - name: Instalar dependencias
-        if: steps.check.outputs.hay == 'true'
         run: npm ci
       - name: Instalar navegador
-        if: steps.check.outputs.hay == 'true'
         run: npx playwright install --with-deps chromium
       - name: Correr E2E
-        if: steps.check.outputs.hay == 'true'
         run: npm run test:e2e
       - name: Guardar reporte E2E
-        if: always() && steps.check.outputs.hay == 'true'
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: reporte-e2e
