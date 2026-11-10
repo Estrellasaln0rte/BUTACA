@@ -60,10 +60,12 @@
   --rebote: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-html[data-animo='contenta'] { --aura: var(--ambar); --aura-texto: var(--noche); }
-html[data-animo='energia'] { --aura: var(--frambuesa); --aura-texto: var(--crema); }
-html[data-animo='triste'] { --aura: var(--ciruela); --aura-texto: var(--crema); }
-html[data-animo='cansada'] { --aura: color-mix(in srgb, var(--vino) 80%, var(--crema)); --aura-texto: var(--crema); }
+html[data-animo='happy'] { --aura: var(--ambar); --aura-texto: var(--noche); }
+html[data-animo='surprised'] { --aura: #f2b04a; --aura-texto: var(--noche); }
+html[data-animo='angry'] { --aura: var(--frambuesa); --aura-texto: var(--crema); }
+html[data-animo='sad'] { --aura: var(--ciruela); --aura-texto: var(--crema); }
+html[data-animo='fearful'] { --aura: #2c3a66; --aura-texto: var(--crema); }
+html[data-animo='disgusted'] { --aura: #6a7a3e; --aura-texto: var(--crema); }
 
 @media (prefers-reduced-motion: reduce) {
   *,

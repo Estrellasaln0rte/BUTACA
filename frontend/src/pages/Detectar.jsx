@@ -37,7 +37,7 @@ export default function Detectar() {
   const [error, setError] = useState('');
   const [aviso, setAviso] = useState('');
   const [resultado, setResultado] = useState(null);
-  const [indiceAnimo, setIndiceAnimo] = useState(2);
+  const [indiceAnimo, setIndiceAnimo] = useState(() => ANIMOS.indexOf(animoDeEmocion('neutral')));
   const [guardando, setGuardando] = useState(false);
 
   useEffect(() => {
@@ -103,8 +103,8 @@ export default function Detectar() {
     setPaso('resultado');
   }
 
-  // Se guarda recién cuando la persona confirma: si no movió el slider, la emoción detectada;
-  // si lo corrigió, la emoción del ánimo que eligió.
+  // Se guarda recién cuando la persona confirma: si no la cambió, la emoción detectada con su
+  // confianza; si eligió otra, esa emoción sin confianza (no la midió la cámara).
   async function confirmarAnimo() {
     const animo = ANIMOS[indiceAnimo];
     const sinCorregir = animo === animoDeEmocion(resultado.emocion);
@@ -124,6 +124,20 @@ export default function Detectar() {
     } finally {
       setGuardando(false);
     }
+  }
+
+  // Sin cámara: la persona elige su ánimo a mano. Se guarda igual que una corrección (sin confianza)
+  // y, si falla el guardado, igual se muestran las recomendaciones.
+  async function elegirSinCamara(elegido) {
+    setGuardando(true);
+    try {
+      await registrarAnimo(elegido.emocion);
+    } catch {
+      // El historial es secundario: no bloquea ver recomendaciones.
+    } finally {
+      setGuardando(false);
+    }
+    navegar(`/recomendaciones?emotion=${elegido.emocion}`);
   }
 
   const camaraVisible = paso === 'camara' || paso === 'leyendo';
@@ -160,6 +174,25 @@ export default function Detectar() {
               <button type="button" className="det-boton" onClick={activarCamara}>
                 Permitir cámara y leer mi ánimo
               </button>
+            </div>
+
+            <div className="det-manual">
+              <p id="det-manual-titulo">¿Preferís no usar la cámara? Elegí cómo te sentís:</p>
+              <div className="det-manual-opciones" role="group" aria-labelledby="det-manual-titulo">
+                {ANIMOS.map((a) => (
+                  <button
+                    key={a.id}
+                    type="button"
+                    className="det-manual-opcion"
+                    style={{ '--color-animo': a.brillo }}
+                    onClick={() => elegirSinCamara(a)}
+                    disabled={guardando}
+                  >
+                    <span className="det-manual-punto" aria-hidden="true" />
+                    {a.nombre}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -228,21 +261,7 @@ export default function Detectar() {
               </p>
 
               <fieldset className="det-slider">
-                <legend>¿Así te sentís?</legend>
-                <input
-                  type="range"
-                  min="0"
-                  max={ANIMOS.length - 1}
-                  step="1"
-                  value={indiceAnimo}
-                  onChange={(e) => {
-                    setIndiceAnimo(Number(e.target.value));
-                    setAviso('');
-                  }}
-                  aria-valuetext={animo.nombre}
-                  aria-label="Tu ánimo"
-                  style={{ '--progreso': `${(indiceAnimo / (ANIMOS.length - 1)) * 100}%` }}
-                />
+                <legend>¿Así te sentís? Si no, elegí otra:</legend>
                 <div className="det-slider-etiquetas">
                   {ANIMOS.map((a, i) => (
                     <button
@@ -256,6 +275,7 @@ export default function Detectar() {
                         setAviso('');
                       }}
                     >
+                      <span className="det-manual-punto" aria-hidden="true" />
                       {a.nombre}
                     </button>
                   ))}

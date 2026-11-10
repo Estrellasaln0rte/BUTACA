@@ -38,7 +38,7 @@ Documentar aquí cada endpoint a medida que se acuerde (método, ruta, body, res
 
 🔒 = exige sesión. ✅ = funcionando. 🚧 = rutas y validaciones listas; falta conectar el repositorio de Prisma.
 
-**Emociones válidas** (`emotion`): `neutral`, `happy`, `sad`, `angry`, `fearful`, `disgusted`, `surprised` (las 7 de face-api) y `tired`, que solo se elige a mano al corregir el ánimo. No se aceptan campos extra (nunca una imagen).
+**Emociones válidas** (`emotion`): `neutral`, `happy`, `sad`, `angry`, `fearful`, `disgusted`, `surprised`. No se aceptan campos extra (nunca una imagen).
 
 **Autenticación:** las rutas 🔒 exigen `Authorization: Bearer <access_token de Supabase>`. Sin token o con token inválido responde `401`.
 
@@ -50,7 +50,7 @@ Documentar aquí cada endpoint a medida que se acuerde (método, ruta, body, res
 
 | Parámetro | Valores | Por defecto |
 |---|---|---|
-| `emotion` | una de las 8 emociones válidas | obligatorio |
+| `emotion` | una de las 7 emociones válidas | obligatorio |
 | `mediaType` | `movie` o `tv` | `movie` |
 | `page` | 1 a 500 (TMDB no entrega más) | `1` |
 
@@ -74,6 +74,5 @@ Criterio: recomendar algo que **ayude** con el ánimo detectado, no solo que lo 
 | `disgusted` | algo amable para limpiar la sensación | Romance, Fantasía | Familia, Ciencia ficción y fantasía |
 | `surprised` | seguir con la intriga | Misterio, Ciencia ficción | Misterio, Ciencia ficción y fantasía |
 | `neutral` | variedad para descubrir | Drama, Aventura, Ciencia ficción | Drama, Ciencia ficción y fantasía |
-| `tired` | algo liviano, sin exigir atención | Animación, Comedia, Familia | Comedia, Animación, Familia |
 
 TMDB usa IDs distintos para películas y series, y algunos géneros no existen en series (Terror, Romance, Suspenso; Aventura y Fantasía solo existen combinados). Por eso hay un mapa para cada tipo.
