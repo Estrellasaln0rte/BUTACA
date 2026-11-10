@@ -57,11 +57,7 @@ export function createTmdbClient({
   return {
     // Busca títulos populares de esos géneros. Basta con que tenga UNO de ellos ("|" = o).
     async discover(mediaType, { genreIds = [], page = 1 } = {}) {
-      // Se valida aquí también porque mediaType va dentro de la ruta de la URL.
-      if (!MEDIA_TYPES.includes(mediaType)) {
-        throw new Error(`mediaType inválido: ${mediaType}`);
-      }
-
+      assertMediaType(mediaType);
       const data = await request(`/discover/${mediaType}`, {
         with_genres: genreIds.join('|'),
         sort_by: 'popularity.desc',
@@ -69,16 +65,37 @@ export function createTmdbClient({
         'vote_count.gte': '50', // evita títulos casi desconocidos, sin póster ni reseñas
         page: String(page),
       });
-
-      const results = Array.isArray(data?.results) ? data.results : [];
-
-      return {
-        page: data?.page ?? page,
-        totalPages: Math.min(data?.total_pages ?? 0, MAX_PAGES),
-        totalResults: data?.total_results ?? 0,
-        items: results.map((r) => toItem(r, mediaType)),
-      };
+      return toPage(data, mediaType, page);
     },
+
+    // Busca por título. TMDB ordena por relevancia; no se filtra por votos para no esconder
+    // justo el título que la persona escribió.
+    async search(mediaType, { query, page = 1 } = {}) {
+      assertMediaType(mediaType);
+      const data = await request(`/search/${mediaType}`, {
+        query,
+        include_adult: 'false',
+        page: String(page),
+      });
+      return toPage(data, mediaType, page);
+    },
+  };
+}
+
+// Se valida aquí también porque mediaType va dentro de la ruta de la URL.
+function assertMediaType(mediaType) {
+  if (!MEDIA_TYPES.includes(mediaType)) {
+    throw new Error(`mediaType inválido: ${mediaType}`);
+  }
+}
+
+function toPage(data, mediaType, page) {
+  const results = Array.isArray(data?.results) ? data.results : [];
+  return {
+    page: data?.page ?? page,
+    totalPages: Math.min(data?.total_pages ?? 0, MAX_PAGES),
+    totalResults: data?.total_results ?? 0,
+    items: results.map((r) => toItem(r, mediaType)),
   };
 }
 
