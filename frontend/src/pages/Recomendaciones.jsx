@@ -1,12 +1,19 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
-import { agregarFavorita, obtenerFavoritas, obtenerRecomendaciones, quitarFavorita } from '../services/api.js';
+import {
+  agregarFavorita,
+  buscarTitulos,
+  obtenerFavoritas,
+  obtenerRecomendaciones,
+  quitarFavorita,
+} from '../services/api.js';
 import { EMOCIONES } from '../utils/emociones.js';
 import { ANIMOS, animoDeEmocion, aplicarAura } from '../utils/animos.js';
 import FondoVivo from '../components/ui/FondoVivo.jsx';
 import { useSesion } from '../context/SesionContext.jsx';
 import { guardarUltimaEmocion } from '../hooks/useUltimaEmocion.js';
 import Mascota from '../components/mascota/Mascota.jsx';
+import Buscador from '../components/buscador/Buscador.jsx';
 import '../styles/recomendaciones.css';
 
 const TIPOS = [
@@ -15,6 +22,9 @@ const TIPOS = [
 ];
 
 const URL_POSTER = 'https://image.tmdb.org/t/p/w342';
+
+// Espera a que la persona deje de escribir antes de buscar (el back permite 30 búsquedas por minuto).
+const ESPERA_BUSQUEDA = 500;
 
 const claveFavorita = (tipo, tmdbId) => `${tipo}-${tmdbId}`;
 
@@ -140,6 +150,16 @@ export default function Recomendaciones() {
   const [favoritas, setFavoritas] = useState(() => new Set());
   const [aviso, setAviso] = useState('');
 
+  // Búsqueda por título en todo TMDB: mientras haya texto, la grilla muestra resultados en vez de recomendaciones.
+  const [texto, setTexto] = useState('');
+  const [consulta, setConsulta] = useState('');
+  const [resultados, setResultados] = useState([]);
+  const [paginaBusqueda, setPaginaBusqueda] = useState(1);
+  const [totalBusqueda, setTotalBusqueda] = useState(1);
+  const [buscandoAhora, setBuscandoAhora] = useState(false);
+  const [errorBusqueda, setErrorBusqueda] = useState('');
+  const ultimaBusqueda = useRef(0);
+
   const { usuario } = useSesion();
 
   useEffect(() => {
@@ -180,6 +200,48 @@ export default function Recomendaciones() {
     setItems([]);
     cargar(1);
   }, [valida, cargar]);
+
+  useEffect(() => {
+    const limpio = texto.trim();
+    const espera = setTimeout(() => setConsulta(limpio), limpio ? ESPERA_BUSQUEDA : 0);
+    return () => clearTimeout(espera);
+  }, [texto]);
+
+  const buscar = useCallback(
+    async (numero) => {
+      if (!consulta) return;
+      const id = ++ultimaBusqueda.current;
+      setBuscandoAhora(true);
+      setErrorBusqueda('');
+      try {
+        const datos = await buscarTitulos(consulta, tipo, numero);
+        if (id !== ultimaBusqueda.current) return; // llegó tarde: ya se buscó otra cosa
+        setTotalBusqueda(Math.min(datos.totalPages ?? 1, 500));
+        setPaginaBusqueda(numero);
+        setResultados((previos) => {
+          if (numero === 1) return datos.items;
+          const vistos = new Set(previos.map((i) => i.tmdbId));
+          return [...previos, ...datos.items.filter((i) => !vistos.has(i.tmdbId))];
+        });
+      } catch (err) {
+        if (id === ultimaBusqueda.current) setErrorBusqueda(err.message);
+      } finally {
+        if (id === ultimaBusqueda.current) setBuscandoAhora(false);
+      }
+    },
+    [consulta, tipo],
+  );
+
+  useEffect(() => {
+    setResultados([]);
+    if (!consulta) {
+      ultimaBusqueda.current += 1;
+      setBuscandoAhora(false);
+      setErrorBusqueda('');
+      return;
+    }
+    buscar(1);
+  }, [consulta, buscar]);
 
   useEffect(() => {
     if (!valida) return;
@@ -238,7 +300,19 @@ export default function Recomendaciones() {
 
   if (!valida) return <Navigate to="/" replace />;
 
-  const primeraCarga = cargando && items.length === 0;
+  // Con texto escrito se muestra la búsqueda; mientras espera a que termines de escribir, ya cuenta como búsqueda.
+  const enBusqueda = texto.trim() !== '';
+  const lista = enBusqueda ? resultados : items;
+  const ocupado = enBusqueda ? buscandoAhora || consulta !== texto.trim() : cargando;
+  const fallo = enBusqueda ? errorBusqueda : error;
+  const paginaActual = enBusqueda ? paginaBusqueda : pagina;
+  const paginas = enBusqueda ? totalBusqueda : totalPaginas;
+  const primeraCarga = ocupado && lista.length === 0;
+  const sinResultados = enBusqueda && !ocupado && !errorBusqueda && resultados.length === 0;
+  const nombreTipo = tipo === 'movie' ? 'películas' : 'series';
+  const otroTipo = tipo === 'movie' ? 'series' : 'películas';
+  const reintentar = () => (enBusqueda ? buscar(1) : cargar(1));
+  const verMas = () => (enBusqueda ? buscar(paginaActual + 1) : cargar(paginaActual + 1));
 
   return (
     <section className="recomendaciones" aria-labelledby="titulo-rec" style={{ '--aura-rec': animo.brillo }}>
@@ -282,6 +356,15 @@ export default function Recomendaciones() {
             </Link>
           </div>
 
+          <Buscador
+            valor={texto}
+            onCambio={setTexto}
+            onEnviar={(v) => setConsulta(v.trim())}
+            etiqueta="Buscar películas o series por título"
+            placeholder={`Buscar ${nombreTipo} por título…`}
+            sinResultados={sinResultados}
+          />
+
           <div className="rec-animos" role="group" aria-label="Ver recomendaciones para otro ánimo">
             <span className="rec-animos-titulo">Ver para otro ánimo:</span>
             {ANIMOS.map((a) => (
@@ -306,20 +389,39 @@ export default function Recomendaciones() {
           </p>
         )}
 
-        {error && items.length === 0 ? (
+        {enBusqueda && (
+          <p className="rec-resultados" role="status">
+            {ocupado && lista.length === 0
+              ? `Buscando “${texto.trim()}”…`
+              : sinResultados
+                ? ''
+                : `Resultados para “${consulta}” en ${nombreTipo}`}
+          </p>
+        )}
+
+        {fallo && lista.length === 0 ? (
           <div className="rec-estado" role="alert">
-            <p>{error}</p>
-            <button type="button" className="rec-boton" onClick={() => cargar(1)}>
+            <p>{fallo}</p>
+            <button type="button" className="rec-boton" onClick={reintentar}>
               Intentar de nuevo
             </button>
           </div>
-        ) : !cargando && items.length === 0 ? (
+        ) : sinResultados ? (
           <div className="rec-estado">
-            <p>No encontramos títulos para este ánimo. Probá con {tipo === 'movie' ? 'series' : 'películas'}.</p>
+            <p>
+              No encontramos “{consulta}” en {nombreTipo}. Probá con {otroTipo} o con otro título.
+            </p>
+            <button type="button" className="rec-boton" onClick={() => setTexto('')}>
+              Borrar búsqueda
+            </button>
+          </div>
+        ) : !ocupado && lista.length === 0 ? (
+          <div className="rec-estado">
+            <p>No encontramos títulos para este ánimo. Probá con {otroTipo}.</p>
           </div>
         ) : (
-          <ul className="rec-grilla" aria-busy={cargando}>
-            {items.map((item) => (
+          <ul className="rec-grilla" aria-busy={ocupado}>
+            {lista.map((item) => (
               <Tarjeta
                 key={item.tmdbId}
                 item={item}
@@ -332,12 +434,12 @@ export default function Recomendaciones() {
           </ul>
         )}
 
-        {items.length > 0 && (
+        {lista.length > 0 && (
           <div className="rec-pie">
-            {error && <p className="rec-aviso">{error}</p>}
-            {pagina < totalPaginas && (
-              <button type="button" className="rec-boton" onClick={() => cargar(pagina + 1)} disabled={cargando}>
-                {cargando ? 'Cargando…' : 'Ver más'}
+            {fallo && <p className="rec-aviso">{fallo}</p>}
+            {paginaActual < paginas && (
+              <button type="button" className="rec-boton" onClick={verMas} disabled={ocupado}>
+                {ocupado ? 'Cargando…' : 'Ver más'}
               </button>
             )}
           </div>

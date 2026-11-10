@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { agregarFavorita, obtenerFavoritas, quitarFavorita } from '../services/api.js';
 import FondoVivo from '../components/ui/FondoVivo.jsx';
 import Mascota from '../components/mascota/Mascota.jsx';
+import Buscador from '../components/buscador/Buscador.jsx';
+import { coincide } from '../utils/busqueda.js';
 import '../styles/recomendaciones.css';
 import '../styles/favoritas.css';
 
@@ -33,6 +35,7 @@ function IconoCorazon() {
 export default function Favoritas() {
   const [favoritas, setFavoritas] = useState([]);
   const [filtro, setFiltro] = useState('todas');
+  const [busqueda, setBusqueda] = useState('');
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
   const [quitada, setQuitada] = useState(null); // { item, indice } para poder deshacer
@@ -99,7 +102,10 @@ export default function Favoritas() {
     }
   }
 
-  const visibles = filtro === 'todas' ? favoritas : favoritas.filter((f) => f.mediaType === filtro);
+  const visibles = favoritas.filter(
+    (f) => (filtro === 'todas' || f.mediaType === filtro) && coincide(f.title, busqueda),
+  );
+  const buscando = busqueda.trim() !== '';
   const vacia = !cargando && !error && favoritas.length === 0;
 
   return (
@@ -116,6 +122,16 @@ export default function Favoritas() {
             <p className="fav-cuenta">
               {favoritas.length} {favoritas.length === 1 ? 'título guardado' : 'títulos guardados'}
             </p>
+          )}
+
+          {favoritas.length > 0 && (
+            <Buscador
+              valor={busqueda}
+              onCambio={setBusqueda}
+              etiqueta="Buscar en tus favoritas"
+              placeholder="Buscar en tus favoritas…"
+              sinResultados={buscando && visibles.length === 0}
+            />
           )}
 
           {favoritas.length > 0 && (
@@ -160,7 +176,19 @@ export default function Favoritas() {
           </div>
         ) : visibles.length === 0 && !cargando ? (
           <div className="rec-estado">
-            <p>No tenés {filtro === 'movie' ? 'películas' : 'series'} guardadas.</p>
+            {buscando ? (
+              <>
+                <p>
+                  No encontramos “{busqueda.trim()}” entre tus{' '}
+                  {filtro === 'todas' ? 'favoritas' : filtro === 'movie' ? 'películas guardadas' : 'series guardadas'}.
+                </p>
+                <button type="button" className="rec-boton" onClick={() => setBusqueda('')}>
+                  Borrar búsqueda
+                </button>
+              </>
+            ) : (
+              <p>No tenés {filtro === 'movie' ? 'películas' : 'series'} guardadas.</p>
+            )}
           </div>
         ) : (
           <ul className="rec-grilla" aria-busy={cargando}>
