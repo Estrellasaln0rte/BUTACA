@@ -10,13 +10,49 @@
 @property --m5x { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
 @property --m5y { syntax: '<percentage>'; inherits: false; initial-value: 45%; }
 
+/* Colores de la mezcla. Registrados para que el cambio de ánimo se funda en vez de saltar. */
+@property --f1 { syntax: '<color>'; inherits: true; initial-value: #e99856; }
+@property --f2 { syntax: '<color>'; inherits: true; initial-value: #e0b4b2; }
+@property --f3 { syntax: '<color>'; inherits: true; initial-value: #a54055; }
+@property --f4 { syntax: '<color>'; inherits: true; initial-value: #1a1836; }
+@property --f5 { syntax: '<color>'; inherits: true; initial-value: #622347; }
+@property --fb1 { syntax: '<color>'; inherits: true; initial-value: #a54055; }
+@property --fb2 { syntax: '<color>'; inherits: true; initial-value: #622347; }
+@property --fb3 { syntax: '<color>'; inherits: true; initial-value: #42164b; }
+
 .fondo-vivo {
   position: fixed;
   inset: 0;
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  background: #42164b;
+  background: var(--fb3);
+  transition:
+    --f1 1.2s ease, --f2 1.2s ease, --f3 1.2s ease, --f4 1.2s ease, --f5 1.2s ease,
+    --fb1 1.2s ease, --fb2 1.2s ease, --fb3 1.2s ease;
+}
+
+/* Paleta del fondo según el ánimo (html[data-animo], ver utils/animos.js).
+   Sin ánimo (login, permiso de cámara) queda la mezcla original. */
+html[data-animo='contenta'] .fondo-vivo {
+  --f1: #f6c07a; --f2: #ffd9b8; --f3: #ef7f6a; --f4: #c2475e; --f5: #e99856;
+  --fb1: #f0a35e; --fb2: #d9675e; --fb3: #a54055;
+}
+html[data-animo='energia'] .fondo-vivo {
+  --f1: #ff8a5c; --f2: #f2a0b0; --f3: #e0476a; --f4: #5a1640; --f5: #b0306a;
+  --fb1: #e0476a; --fb2: #a8285a; --fb3: #5a1640;
+}
+html[data-animo='neutral'] .fondo-vivo {
+  --f1: #f2c6b4; --f2: #f6ebe4; --f3: #c48ba0; --f4: #6b4a7a; --f5: #b98aa8;
+  --fb1: #d9a3a8; --fb2: #a27392; --fb3: #6b4a7a;
+}
+html[data-animo='cansada'] .fondo-vivo {
+  --f1: #d9a0b8; --f2: #e8c6d4; --f3: #8c4a7a; --f4: #2e1a3e; --f5: #6e3060;
+  --fb1: #9c5a80; --fb2: #622347; --fb3: #3a1a40;
+}
+html[data-animo='triste'] .fondo-vivo {
+  --f1: #8fa0d8; --f2: #c4b0e0; --f3: #6a5fa8; --f4: #14163a; --f5: #42306e;
+  --fb1: #5a5aa0; --fb2: #3d2f6e; --fb3: #1e1a48;
 }
 
 /* Cinco colores de la paleta que se superponen y se funden entre sí, sin zonas planas */
@@ -24,12 +60,12 @@
   position: absolute;
   inset: -8%;
   background:
-    radial-gradient(circle at var(--m1x) var(--m1y), #e99856 0%, rgba(233, 152, 86, 0) 42%),
-    radial-gradient(circle at var(--m2x) var(--m2y), #e0b4b2 0%, rgba(224, 180, 178, 0) 40%),
-    radial-gradient(circle at var(--m3x) var(--m3y), #a54055 0%, rgba(165, 64, 85, 0) 55%),
-    radial-gradient(circle at var(--m4x) var(--m4y), #1a1836 0%, rgba(26, 24, 54, 0) 55%),
-    radial-gradient(circle at var(--m5x) var(--m5y), #622347 0%, rgba(98, 35, 71, 0) 70%),
-    linear-gradient(135deg, #a54055 0%, #622347 45%, #42164b 100%);
+    radial-gradient(circle at var(--m1x) var(--m1y), var(--f1) 0%, transparent 42%),
+    radial-gradient(circle at var(--m2x) var(--m2y), var(--f2) 0%, transparent 40%),
+    radial-gradient(circle at var(--m3x) var(--m3y), var(--f3) 0%, transparent 55%),
+    radial-gradient(circle at var(--m4x) var(--m4y), var(--f4) 0%, transparent 55%),
+    radial-gradient(circle at var(--m5x) var(--m5y), var(--f5) 0%, transparent 70%),
+    linear-gradient(135deg, var(--fb1) 0%, var(--fb2) 45%, var(--fb3) 100%);
   filter: blur(40px) saturate(1.1);
   transition: translate 800ms ease-out;
   animation: fondo-mezcla 26s ease-in-out infinite alternate;
