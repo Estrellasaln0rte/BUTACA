@@ -3,6 +3,7 @@ import { SesionProvider, useSesion } from './context/SesionContext.jsx';
 import RutaProtegida from './components/RutaProtegida.jsx';
 import Login from './pages/Login.jsx';
 import Detectar from './pages/Detectar.jsx';
+import Recomendaciones from './pages/Recomendaciones.jsx';
 
 function BarraSesion() {
   const { usuario, cerrarSesion } = useSesion();
@@ -34,6 +35,14 @@ export default function App() {
               element={
                 <RutaProtegida>
                   <Detectar />
+                </RutaProtegida>
+              }
+            />
+            <Route
+              path="/recomendaciones"
+              element={
+                <RutaProtegida>
+                  <Recomendaciones />
                 </RutaProtegida>
               }
             />

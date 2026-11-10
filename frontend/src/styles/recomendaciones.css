@@ -1,0 +1,556 @@
+/* Pantalla 4: recomendaciones. Misma sala oscura; el color del ánimo (--aura-rec) tiñe los acentos.
+   Cada título es una entrada de cine: póster arriba y talón abajo, separados por un corte. */
+.recomendaciones {
+  position: relative;
+  min-height: calc(100dvh - 3.5rem);
+  padding: 2.5rem 1rem 4rem;
+  color: var(--crema);
+}
+
+.rec-contenido {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 72rem);
+  margin: 0 auto;
+}
+
+/* Encabezado */
+.rec-encabezado {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.rec-mascota {
+  width: 150px;
+  margin: -0.5rem auto 0.25rem;
+  filter: drop-shadow(0 18px 18px rgba(26, 24, 54, 0.45));
+  pointer-events: none;
+}
+
+.rec-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--r-pill);
+  background: rgba(26, 24, 54, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(224, 180, 178, 0.25);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(246, 235, 228, 0.9);
+}
+
+.rec-punto {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--aura-rec);
+  box-shadow: 0 0 10px var(--aura-rec);
+}
+
+.rec-titulo {
+  margin: 0.9rem 0 0;
+  font-family: var(--fuente-titulo);
+  font-weight: 700;
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  line-height: 1.05;
+  text-shadow: 0 4px 24px rgba(26, 24, 54, 0.45);
+}
+
+.rec-titulo-script {
+  font-family: var(--fuente-script);
+  font-weight: 400;
+  color: #fff8f2;
+  padding-right: 0.1em;
+  text-shadow:
+    0 2px 0 rgba(26, 24, 54, 0.6),
+    0 0 18px color-mix(in srgb, var(--aura-rec) 70%, transparent),
+    0 0 36px rgba(26, 24, 54, 0.5);
+}
+
+.rec-generos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rec-generos li {
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--r-pill);
+  font-size: 0.8rem;
+  color: var(--crema);
+  background: color-mix(in srgb, var(--aura-rec) 22%, rgba(26, 24, 54, 0.6));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--aura-rec) 45%, transparent);
+}
+
+.rec-controles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem 1.5rem;
+  margin-top: 1.5rem;
+}
+
+/* Pestañas Películas / Series: la activa queda hundida */
+.rec-pestanas {
+  display: inline-flex;
+  padding: 0.3rem;
+  border-radius: var(--r-pill);
+  background: rgba(26, 24, 54, 0.65);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px rgba(224, 180, 178, 0.2);
+}
+
+.rec-pestana {
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.6rem 1.3rem;
+  border: none;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: rgba(246, 235, 228, 0.75);
+  cursor: pointer;
+  transition:
+    background var(--dur-media) ease,
+    color var(--dur-media) ease;
+}
+
+.rec-pestana:hover:not(.activa) {
+  color: var(--crema);
+}
+
+.rec-pestana.activa {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4), transparent 60%),
+    var(--ambar);
+  color: var(--noche);
+  box-shadow: 0 3px 0 rgba(10, 6, 20, 0.5);
+}
+
+.rec-enlace {
+  color: var(--crema);
+  font-weight: 600;
+  text-shadow: 0 1px 8px rgba(26, 24, 54, 0.55);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  text-decoration-color: rgba(246, 235, 228, 0.5);
+}
+
+.rec-enlace:hover {
+  color: var(--crema);
+  text-decoration-color: currentColor;
+}
+
+/* Cambiar de ánimo sin volver a la cámara */
+.rec-animos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+
+.rec-animos-titulo {
+  margin-right: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(246, 235, 228, 0.85);
+  text-shadow: 0 1px 8px rgba(26, 24, 54, 0.55);
+}
+
+.rec-animo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.35rem 0.8rem;
+  border: none;
+  border-radius: var(--r-pill);
+  background: rgba(26, 24, 54, 0.5);
+  color: rgba(246, 235, 228, 0.85);
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(224, 180, 178, 0.22);
+  transition:
+    background var(--dur-media) ease,
+    transform var(--dur-rapida) ease;
+}
+
+.rec-animo:hover {
+  color: var(--crema);
+  background: rgba(26, 24, 54, 0.7);
+}
+
+.rec-animo:active {
+  transform: translateY(2px);
+}
+
+.rec-animo.activo {
+  color: var(--crema);
+  background: rgba(26, 24, 54, 0.8);
+  box-shadow:
+    inset 0 0 0 1.5px var(--color-animo),
+    0 0 14px color-mix(in srgb, var(--color-animo) 40%, transparent);
+}
+
+.rec-animo-punto {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--color-animo);
+}
+
+/* Grilla */
+.rec-grilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+  gap: 1.75rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Tarjeta: entrada de cine */
+.rec-tarjeta {
+  --corte: 0px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-m);
+  filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.4));
+  transition: transform var(--dur-media) var(--rebote);
+}
+
+.rec-tarjeta:hover,
+.rec-tarjeta:focus-within {
+  transform: translateY(-6px);
+}
+
+.rec-poster {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  padding: 0;
+  border: none;
+  border-radius: var(--r-m) var(--r-m) 0 0;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--ciruela), var(--noche));
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  /* muescas del corte, abajo */
+  -webkit-mask:
+    radial-gradient(circle 9px at 0 100%, transparent 8px, #000 9px) left / 51% 100% no-repeat,
+    radial-gradient(circle 9px at 100% 100%, transparent 8px, #000 9px) right / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle 9px at 0 100%, transparent 8px, #000 9px) left / 51% 100% no-repeat,
+    radial-gradient(circle 9px at 100% 100%, transparent 8px, #000 9px) right / 51% 100% no-repeat;
+}
+
+.rec-poster img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rec-sin-poster {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 1rem;
+  font-family: var(--fuente-titulo);
+  font-size: 1.15rem;
+  text-align: center;
+  color: var(--rosa-polvo);
+}
+
+/* Sinopsis: aparece sobre el póster al pasar el mouse o al tocar */
+.rec-sinopsis {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 3.4rem 0.9rem 1.5rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  text-align: left;
+  color: var(--crema);
+  background: linear-gradient(180deg, rgba(26, 24, 54, 0.95), rgba(66, 22, 75, 0.94));
+  opacity: 0;
+  transition: opacity var(--dur-media) ease;
+}
+
+/* El texto ocupa el alto que haya y se desvanece abajo si es largo:
+   nunca pisa el corte de la entrada, sea cual sea el tamaño de la tarjeta. */
+.rec-sinopsis-texto {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent);
+  mask-image: linear-gradient(180deg, #000 72%, transparent);
+}
+
+.rec-tarjeta.abierta .rec-sinopsis {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .rec-poster:hover .rec-sinopsis {
+    opacity: 1;
+  }
+}
+
+/* Talón: separado del póster por una línea punteada */
+.rec-talon {
+  flex: 1;
+  padding: 0.75rem 0.85rem 0.85rem;
+  border-radius: 0 0 var(--r-m) var(--r-m);
+  background: linear-gradient(180deg, rgba(66, 22, 75, 0.92), rgba(26, 24, 54, 0.95));
+  border-top: 2px dashed color-mix(in srgb, var(--aura-rec) 55%, transparent);
+  -webkit-mask:
+    radial-gradient(circle 9px at 0 0, transparent 8px, #000 9px) left / 51% 100% no-repeat,
+    radial-gradient(circle 9px at 100% 0, transparent 8px, #000 9px) right / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle 9px at 0 0, transparent 8px, #000 9px) left / 51% 100% no-repeat,
+    radial-gradient(circle 9px at 100% 0, transparent 8px, #000 9px) right / 51% 100% no-repeat;
+}
+
+.rec-nombre {
+  margin: 0;
+  font-family: var(--fuente-titulo);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.rec-datos {
+  display: flex;
+  gap: 0.75rem;
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: rgba(224, 180, 178, 0.9);
+}
+
+.rec-nota {
+  color: var(--ambar);
+  font-weight: 700;
+}
+
+/* Corazón de favorita */
+.rec-favorita {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(26, 24, 54, 0.72);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: var(--crema);
+  cursor: pointer;
+  box-shadow:
+    inset 0 0 0 1px rgba(246, 235, 228, 0.25),
+    0 3px 0 rgba(10, 6, 20, 0.5);
+  transition:
+    transform var(--dur-rapida) ease,
+    color var(--dur-media) ease,
+    box-shadow var(--dur-rapida) ease;
+}
+
+.rec-favorita svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+.rec-favorita:hover {
+  transform: translateY(-1px) scale(1.06);
+}
+
+.rec-favorita:active {
+  transform: translateY(2px);
+  box-shadow:
+    inset 0 0 0 1px rgba(246, 235, 228, 0.25),
+    inset 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+.rec-favorita.activa {
+  color: #ff7a93;
+}
+
+.rec-favorita.activa svg {
+  animation: rec-latido 380ms var(--rebote);
+}
+
+@keyframes rec-latido {
+  0% { transform: scale(0.6); }
+  60% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+/* Esqueleto de carga */
+.rec-tarjeta.esqueleto .rec-poster,
+.rec-linea {
+  background: linear-gradient(100deg, rgba(66, 22, 75, 0.7) 30%, rgba(165, 64, 85, 0.45) 50%, rgba(66, 22, 75, 0.7) 70%);
+  background-size: 300% 100%;
+  animation: rec-brillo 1.4s ease-in-out infinite;
+}
+
+.rec-tarjeta.esqueleto .rec-poster {
+  cursor: default;
+}
+
+.rec-linea {
+  display: block;
+  height: 0.8rem;
+  border-radius: var(--r-pill);
+}
+
+.rec-linea.corta {
+  width: 50%;
+  margin-top: 0.5rem;
+}
+
+@keyframes rec-brillo {
+  from { background-position: 100% 0; }
+  to { background-position: 0 0; }
+}
+
+/* Estados y pie */
+.rec-estado {
+  max-width: 28rem;
+  margin: 2rem auto;
+  padding: 1.75rem;
+  border-radius: var(--r-l);
+  text-align: center;
+  background: rgba(26, 24, 54, 0.7);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: inset 0 0 0 1px rgba(224, 180, 178, 0.25);
+}
+
+.rec-estado p {
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+.rec-estado p:last-child {
+  margin-bottom: 0;
+}
+
+.rec-aviso {
+  max-width: 36rem;
+  margin: 0 auto 1.25rem;
+  padding: 0.7rem 1rem;
+  border-radius: var(--r-s);
+  text-align: center;
+  font-size: 0.9rem;
+  background: rgba(165, 64, 85, 0.3);
+  box-shadow: inset 0 0 0 1px rgba(224, 106, 132, 0.5);
+}
+
+.rec-pie {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2.5rem;
+}
+
+.rec-boton {
+  font: inherit;
+  font-weight: 700;
+  padding: 0.9rem 2.2rem;
+  border: none;
+  border-radius: var(--r-pill);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.45), transparent 55%),
+    var(--ambar);
+  color: var(--noche);
+  cursor: pointer;
+  box-shadow:
+    0 6px 0 rgba(10, 6, 20, 0.55),
+    0 14px 18px rgba(0, 0, 0, 0.3);
+  transition:
+    transform var(--dur-rapida) ease,
+    box-shadow var(--dur-rapida) ease;
+}
+
+.rec-boton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 0 rgba(10, 6, 20, 0.55),
+    0 0 24px rgba(233, 152, 86, 0.45);
+}
+
+.rec-boton:active:not(:disabled) {
+  transform: translateY(5px);
+  box-shadow:
+    0 1px 0 rgba(10, 6, 20, 0.55),
+    inset 0 4px 10px rgba(26, 24, 54, 0.35);
+}
+
+.rec-boton:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.recomendaciones :focus-visible {
+  outline: 3px solid var(--ambar);
+  outline-offset: 3px;
+}
+
+@media (max-width: 520px) {
+  .recomendaciones {
+    padding-top: 1.75rem;
+  }
+
+  .rec-mascota {
+    width: 112px;
+  }
+
+  .rec-grilla {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem 0.85rem;
+  }
+
+  .rec-favorita {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rec-tarjeta,
+  .rec-tarjeta:hover,
+  .rec-tarjeta:focus-within {
+    transform: none;
+  }
+
+  .rec-favorita.activa svg,
+  .rec-tarjeta.esqueleto .rec-poster,
+  .rec-linea {
+    animation: none;
+  }
+}
