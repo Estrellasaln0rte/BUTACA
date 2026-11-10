@@ -149,6 +149,67 @@
   text-decoration-color: currentColor;
 }
 
+/* Cambiar de ánimo sin volver a la cámara */
+.rec-animos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 1rem;
+}
+
+.rec-animos-titulo {
+  margin-right: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(246, 235, 228, 0.85);
+  text-shadow: 0 1px 8px rgba(26, 24, 54, 0.55);
+}
+
+.rec-animo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.35rem 0.8rem;
+  border: none;
+  border-radius: var(--r-pill);
+  background: rgba(26, 24, 54, 0.5);
+  color: rgba(246, 235, 228, 0.85);
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(224, 180, 178, 0.22);
+  transition:
+    background var(--dur-media) ease,
+    transform var(--dur-rapida) ease;
+}
+
+.rec-animo:hover {
+  color: var(--crema);
+  background: rgba(26, 24, 54, 0.7);
+}
+
+.rec-animo:active {
+  transform: translateY(2px);
+}
+
+.rec-animo.activo {
+  color: var(--crema);
+  background: rgba(26, 24, 54, 0.8);
+  box-shadow:
+    inset 0 0 0 1.5px var(--color-animo),
+    0 0 14px color-mix(in srgb, var(--color-animo) 40%, transparent);
+}
+
+.rec-animo-punto {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--color-animo);
+}
+
 /* Grilla */
 .rec-grilla {
   display: grid;
@@ -219,19 +280,26 @@
 .rec-sinopsis {
   position: absolute;
   inset: 0;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 10;
-  line-clamp: 10;
-  overflow: hidden;
-  padding: 3.6rem 0.9rem 1rem;
-  font-size: 0.82rem;
+  display: flex;
+  flex-direction: column;
+  padding: 3.4rem 0.9rem 1.5rem;
+  font-size: 0.8rem;
   line-height: 1.45;
   text-align: left;
   color: var(--crema);
-  background: linear-gradient(180deg, rgba(26, 24, 54, 0.94), rgba(66, 22, 75, 0.92));
+  background: linear-gradient(180deg, rgba(26, 24, 54, 0.95), rgba(66, 22, 75, 0.94));
   opacity: 0;
   transition: opacity var(--dur-media) ease;
+}
+
+/* El texto ocupa el alto que haya y se desvanece abajo si es largo:
+   nunca pisa el corte de la entrada, sea cual sea el tamaño de la tarjeta. */
+.rec-sinopsis-texto {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent);
+  mask-image: linear-gradient(180deg, #000 72%, transparent);
 }
 
 .rec-tarjeta.abierta .rec-sinopsis {

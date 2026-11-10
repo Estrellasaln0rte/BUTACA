@@ -40,10 +40,53 @@ body {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--crema);
-  margin-right: auto;
+  text-decoration: none;
+}
+
+/* Menú de secciones: la activa queda como pastilla ámbar hundida */
+.barra-sesion-nav {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: 0.75rem;
+  padding: 0.25rem;
+  border-radius: 999px;
+  background: rgba(26, 24, 54, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(224, 180, 178, 0.18);
+}
+
+.barra-sesion-nav a {
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: rgba(246, 235, 228, 0.8);
+  text-decoration: none;
+  transition:
+    background-color var(--dur-media) ease,
+    color var(--dur-media) ease,
+    transform var(--dur-rapida) ease;
+}
+
+.barra-sesion-nav a:hover {
+  color: var(--crema);
+  background: rgba(224, 180, 178, 0.1);
+}
+
+.barra-sesion-nav a:active {
+  transform: translateY(2px);
+}
+
+.barra-sesion-nav a.active {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4), transparent 60%),
+    var(--ambar);
+  color: var(--noche);
+  box-shadow: 0 2px 0 rgba(10, 6, 20, 0.5);
 }
 
 .barra-sesion-usuario {
+  margin-left: auto;
   color: var(--rosa-polvo);
   font-size: 0.9rem;
   overflow: hidden;
@@ -71,4 +114,46 @@ body {
 
 .barra-sesion-salir:active {
   transform: translateY(2px);
+}
+
+.nav-corto {
+  display: none;
+}
+
+/* En pantallas chicas el menú baja a su propia fila, con nombres cortos, y el correo se oculta */
+@media (max-width: 640px) {
+  .barra-sesion {
+    flex-wrap: wrap;
+    row-gap: 0.6rem;
+  }
+
+  .barra-sesion-usuario {
+    display: none;
+  }
+
+  .barra-sesion-salir {
+    margin-left: auto;
+  }
+
+  .barra-sesion-nav {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .barra-sesion-nav a {
+    flex: 1;
+    min-width: 0;
+    padding: 0.4rem 0.4rem;
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  .nav-largo {
+    display: none;
+  }
+
+  .nav-corto {
+    display: inline;
+  }
 }

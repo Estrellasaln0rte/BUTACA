@@ -334,77 +334,49 @@
   color: var(--crema);
 }
 
-.det-slider input[type='range'] {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 22px;
-  margin: 0;
-  border-radius: var(--r-pill);
-  background:
-    linear-gradient(90deg, var(--aura-det) 0 var(--progreso), transparent var(--progreso)),
-    rgba(26, 24, 54, 0.7);
-  box-shadow:
-    inset 0 3px 6px rgba(0, 0, 0, 0.45),
-    0 0 0 1.5px rgba(224, 180, 178, 0.25);
-  cursor: pointer;
-}
-
-.det-slider input[type='range']::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #ffffff, var(--crema) 55%, #d9c3bd);
-  box-shadow:
-    0 4px 0 rgba(10, 6, 20, 0.45),
-    0 0 0 4px var(--aura-det),
-    0 8px 16px rgba(0, 0, 0, 0.35);
-  transition: transform var(--dur-rapida) ease;
-}
-
-.det-slider input[type='range']:active::-webkit-slider-thumb {
-  transform: scale(0.92) translateY(2px);
-}
-
-.det-slider input[type='range']::-moz-range-thumb {
-  width: 38px;
-  height: 38px;
-  border: none;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #ffffff, var(--crema) 55%, #d9c3bd);
-  box-shadow:
-    0 4px 0 rgba(10, 6, 20, 0.45),
-    0 0 0 4px var(--aura-det);
-}
-
 .det-slider-etiquetas {
   display: flex;
-  justify-content: space-between;
-  gap: 0.25rem;
-  margin-top: 0.85rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .det-slider-etiquetas button {
-  flex: 1;
-  padding: 0.35rem 0.1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
   border: none;
   border-radius: var(--r-pill);
-  background: transparent;
-  color: rgba(224, 180, 178, 0.75);
+  background: rgba(26, 24, 54, 0.55);
+  color: rgba(246, 235, 228, 0.8);
   font: inherit;
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
+  box-shadow:
+    inset 0 0 0 1px rgba(224, 180, 178, 0.25),
+    0 3px 0 rgba(10, 6, 20, 0.4);
   transition:
     color var(--dur-media) ease,
-    background-color var(--dur-media) ease;
+    background-color var(--dur-media) ease,
+    transform var(--dur-rapida) ease;
+}
+
+.det-slider-etiquetas button:hover {
+  color: var(--crema);
+}
+
+.det-slider-etiquetas button:active {
+  transform: translateY(2px);
 }
 
 .det-slider-etiquetas button.activa {
-  background: color-mix(in srgb, var(--color-animo) 22%, transparent);
+  background: color-mix(in srgb, var(--color-animo) 24%, rgba(26, 24, 54, 0.7));
   color: var(--crema);
-  box-shadow: inset 0 0 0 1.5px var(--color-animo);
+  box-shadow:
+    inset 0 0 0 1.5px var(--color-animo),
+    0 0 14px color-mix(in srgb, var(--color-animo) 40%, transparent);
 }
 
 .det-aviso {
@@ -454,5 +426,76 @@
 
 @media (max-width: 480px) {
   .det-boleto { padding: 2rem 1.15rem 1.5rem; }
-  .det-slider-etiquetas button { font-size: 0.72rem; }
+}
+
+/* Elegir el ánimo a mano, sin cámara */
+.det-manual {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.det-manual p {
+  margin: 0 0 0.75rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--crema);
+  text-shadow: 0 1px 8px rgba(26, 24, 54, 0.6);
+}
+
+.det-manual-opciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.det-manual-opcion {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 0.95rem;
+  border: none;
+  border-radius: var(--r-pill);
+  background: rgba(26, 24, 54, 0.65);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--crema);
+  cursor: pointer;
+  box-shadow:
+    inset 0 0 0 1px rgba(224, 180, 178, 0.3),
+    0 4px 0 rgba(10, 6, 20, 0.45);
+  transition:
+    transform var(--dur-rapida) ease,
+    box-shadow var(--dur-rapida) ease;
+}
+
+.det-manual-opcion:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 0 0 1.5px var(--color-animo),
+    0 6px 0 rgba(10, 6, 20, 0.45),
+    0 0 18px color-mix(in srgb, var(--color-animo) 45%, transparent);
+}
+
+.det-manual-opcion:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow:
+    inset 0 0 0 1.5px var(--color-animo),
+    0 1px 0 rgba(10, 6, 20, 0.45);
+}
+
+.det-manual-opcion:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.det-manual-punto {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  background: var(--color-animo);
+  box-shadow: 0 0 8px var(--color-animo);
 }
