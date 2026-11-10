@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Render de la mascota de Butaca</title>
+    <style>
+      body { margin: 0; padding: 24px; font-family: system-ui, sans-serif; background: #6b3a5c; color: #fff; }
+      canvas { display: none; }
+      img { width: 320px; height: auto; background: transparent; }
+      a { color: #ffd; }
+    </style>
+  </head>
+  <body>
+    <p>
+      Herramienta de diseño: dibuja la mascota con raymarching (WebGL, sin dependencias) y la exporta como PNG
+      transparente. Abrila con <code>npm run dev:front</code> en
+      <code>/herramientas/render-mascota/index.html</code> y usá el enlace de descarga. Para otra pose agregá <code>?pose=tapa</code> a la dirección.
+    </p>
+    <canvas id="lienzo"></canvas>
+    <img id="resultado" alt="Mascota renderizada" />
+    <p><a id="descargar" download="mascota.png">Descargar PNG</a></p>
+    <script type="module" src="./render.js"></script>
+  </body>
+</html>
