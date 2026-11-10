@@ -79,7 +79,7 @@ Un PR no se puede mergear si el pipeline está en rojo.
 - La API key de TMDB vive únicamente en el backend (`backend/.env`). Nada secreto va en variables `VITE_`.
 - Ver [CONTRIBUTING.md](CONTRIBUTING.md) para el flujo de trabajo del equipo.
 - Las rutas de datos (`/api/favorites`, `/api/moods`, `/api/dashboard`) exigen el token de Supabase y cada consulta se filtra por el usuario de la sesión.
-- Seguridad HTTP: helmet, CORS limitado a `FRONTEND_URL`, rate limit (100 por minuto en general, 20 en recomendaciones), bodies de máximo 10 KB y HTTPS obligatorio en producción.
+- Seguridad HTTP: helmet, CORS limitado a `FRONTEND_URL`, rate limit (100 por minuto por IP en general; por usuario, 20 en recomendaciones y 30 en búsqueda), bodies de máximo 10 KB y HTTPS obligatorio en producción.
 - `/api/moods` solo acepta la etiqueta de emoción: cualquier otro campo (por ejemplo una imagen) se rechaza.
 - Los errores internos nunca exponen detalles al cliente.
 
