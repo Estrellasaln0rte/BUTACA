@@ -48,8 +48,15 @@ export function obtenerAnimos(limite = 50) {
   return pedirAlBackend(`/moods?limit=${limite}`);
 }
 
-export function obtenerRecomendaciones(emocion, tipo, pagina) {
-  const parametros = new URLSearchParams({ emotion: emocion, mediaType: tipo, page: pagina });
+// history: true solo en la primera carga que viene de Detectar (queda en el historial del tablero).
+// Todo lo demás (otro ánimo, otra pestaña, "Ver más", entrar desde el menú) manda false.
+export function obtenerRecomendaciones(emocion, tipo, pagina, history = false) {
+  const parametros = new URLSearchParams({
+    emotion: emocion,
+    mediaType: tipo,
+    page: pagina,
+    history: String(history),
+  });
   return pedirAlBackend(`/recommendations?${parametros}`);
 }
 

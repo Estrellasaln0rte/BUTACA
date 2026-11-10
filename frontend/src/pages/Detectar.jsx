@@ -8,6 +8,9 @@ import FondoVivo from '../components/ui/FondoVivo.jsx';
 import Mascota from '../components/mascota/Mascota.jsx';
 import '../styles/deteccion.css';
 
+// Avisa a Recomendaciones que la persona llega recién detectada: solo esa primera carga va al historial.
+const DESDE_DETECCION = { state: { desdeDeteccion: true } };
+
 function IconoEscudo() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -111,14 +114,14 @@ export default function Detectar() {
     const emocion = sinCorregir ? resultado.emocion : animo.emocion;
 
     if (aviso) {
-      navegar(`/recomendaciones?emotion=${emocion}`);
+      navegar(`/recomendaciones?emotion=${emocion}`, DESDE_DETECCION);
       return;
     }
 
     setGuardando(true);
     try {
       await registrarAnimo(emocion, sinCorregir ? resultado.confianza : undefined);
-      navegar(`/recomendaciones?emotion=${emocion}`);
+      navegar(`/recomendaciones?emotion=${emocion}`, DESDE_DETECCION);
     } catch (e) {
       setAviso(`Tu ánimo no se guardó en el historial: ${e.message}`);
     } finally {
@@ -137,7 +140,7 @@ export default function Detectar() {
     } finally {
       setGuardando(false);
     }
-    navegar(`/recomendaciones?emotion=${elegido.emocion}`);
+    navegar(`/recomendaciones?emotion=${elegido.emocion}`, DESDE_DETECCION);
   }
 
   const camaraVisible = paso === 'camara' || paso === 'leyendo';
