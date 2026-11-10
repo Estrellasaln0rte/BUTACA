@@ -4,6 +4,8 @@ import { agregarFavorita, obtenerFavoritas, obtenerRecomendaciones, quitarFavori
 import { EMOCIONES } from '../utils/emociones.js';
 import { ANIMOS, animoDeEmocion, aplicarAura } from '../utils/animos.js';
 import FondoVivo from '../components/ui/FondoVivo.jsx';
+import { useSesion } from '../context/SesionContext.jsx';
+import { guardarUltimaEmocion } from '../hooks/useUltimaEmocion.js';
 import Mascota from '../components/mascota/Mascota.jsx';
 import '../styles/recomendaciones.css';
 
@@ -105,6 +107,12 @@ export default function Recomendaciones() {
   const [error, setError] = useState('');
   const [favoritas, setFavoritas] = useState(() => new Set());
   const [aviso, setAviso] = useState('');
+
+  const { usuario } = useSesion();
+
+  useEffect(() => {
+    if (valida) guardarUltimaEmocion(usuario?.id, emocion);
+  }, [valida, usuario?.id, emocion]);
 
   useEffect(() => {
     if (!valida) return undefined;
