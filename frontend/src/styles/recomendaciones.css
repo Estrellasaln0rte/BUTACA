@@ -246,7 +246,6 @@
   border-radius: var(--r-m) var(--r-m) 0 0;
   overflow: hidden;
   background: linear-gradient(160deg, var(--ciruela), var(--noche));
-  cursor: pointer;
   font: inherit;
   color: inherit;
   /* muescas del corte, abajo */
@@ -256,6 +255,23 @@
   mask:
     radial-gradient(circle 9px at 0 100%, transparent 8px, #000 9px) left / 51% 100% no-repeat,
     radial-gradient(circle 9px at 100% 100%, transparent 8px, #000 9px) right / 51% 100% no-repeat;
+}
+
+.rec-poster-boton {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* El foco del botón se dibuja por dentro: el póster recorta lo que sobresale. */
+.recomendaciones .rec-poster-boton:focus-visible {
+  outline-offset: -3px;
 }
 
 .rec-poster img {
@@ -276,39 +292,73 @@
   color: var(--rosa-polvo);
 }
 
-/* Sinopsis: aparece sobre el póster al pasar el mouse o al tocar */
+/* Sinopsis: aparece sobre el póster al pasar el mouse o al tocar.
+   Si es larga se scrollea por dentro (dedo, rueda o teclado) sin arrastrar la página,
+   y abajo se desvanece solo mientras quede texto por leer. */
 .rec-sinopsis {
   position: absolute;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 3.4rem 0.9rem 1.5rem;
+  padding: 3.4rem 0.9rem 1.6rem;
   font-size: 0.8rem;
   line-height: 1.45;
   text-align: left;
   color: var(--crema);
   background: linear-gradient(180deg, rgba(26, 24, 54, 0.95), rgba(66, 22, 75, 0.94));
+  cursor: pointer;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--aura-rec) 60%, transparent) transparent;
   opacity: 0;
-  transition: opacity var(--dur-media) ease;
+  visibility: hidden;
+  transition:
+    opacity var(--dur-media) ease,
+    visibility 0s linear var(--dur-media);
 }
 
-/* El texto ocupa el alto que haya y se desvanece abajo si es largo:
-   nunca pisa el corte de la entrada, sea cual sea el tamaño de la tarjeta. */
+.rec-sinopsis::-webkit-scrollbar {
+  width: 4px;
+}
+
+.rec-sinopsis::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--aura-rec) 60%, transparent);
+}
+
+.rec-sinopsis.hay-mas,
+.rec-sinopsis.hay-arriba {
+  --fade-arriba: 0px;
+  --fade-abajo: calc(100% + 3rem);
+  -webkit-mask-image: linear-gradient(180deg, transparent calc(var(--fade-arriba) - 0.4rem), #000 calc(var(--fade-arriba) + 0.8rem), #000 calc(var(--fade-abajo) - 3rem), transparent var(--fade-abajo));
+  mask-image: linear-gradient(180deg, transparent calc(var(--fade-arriba) - 0.4rem), #000 calc(var(--fade-arriba) + 0.8rem), #000 calc(var(--fade-abajo) - 3rem), transparent var(--fade-abajo));
+}
+
+.rec-sinopsis.hay-mas {
+  --fade-abajo: calc(100% - 0.6rem);
+}
+
+/* Lo de arriba se apaga antes de llegar al corazón */
+.rec-sinopsis.hay-arriba {
+  --fade-arriba: 3rem;
+}
+
 .rec-sinopsis-texto {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent);
-  mask-image: linear-gradient(180deg, #000 72%, transparent);
+  margin: 0;
 }
 
 .rec-tarjeta.abierta .rec-sinopsis {
   opacity: 1;
+  visibility: visible;
+  transition: opacity var(--dur-media) ease;
 }
 
 @media (hover: hover) {
   .rec-poster:hover .rec-sinopsis {
     opacity: 1;
+    visibility: visible;
+    transition: opacity var(--dur-media) ease;
   }
 }
 
@@ -538,6 +588,12 @@
   .rec-favorita {
     width: 2.25rem;
     height: 2.25rem;
+  }
+
+  .rec-sinopsis {
+    padding: 3.1rem 0.75rem 1.4rem;
+    font-size: 0.78rem;
+    line-height: 1.4;
   }
 }
 
