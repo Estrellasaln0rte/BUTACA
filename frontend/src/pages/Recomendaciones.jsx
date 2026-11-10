@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { agregarFavorita, obtenerFavoritas, obtenerRecomendaciones, quitarFavorita } from '../services/api.js';
 import { EMOCIONES } from '../utils/emociones.js';
@@ -34,26 +34,58 @@ function IconoCorazon({ lleno }) {
 
 function Tarjeta({ item, tipo, esFavorita, onFavorita }) {
   const [abierta, setAbierta] = useState(false);
+  const [hayMas, setHayMas] = useState(false);
+  const [hayArriba, setHayArriba] = useState(false);
+  const sinopsisRef = useRef(null);
+  const idSinopsis = useId();
   const anio = item.releaseDate?.slice(0, 4);
+
+  // Desvanece arriba y abajo solo donde hay texto escondido: abajo avisa que se puede seguir leyendo,
+  // arriba evita que el texto scrolleado choque con el corazón.
+  const medir = useCallback(() => {
+    const el = sinopsisRef.current;
+    if (!el) return;
+    setHayMas(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
+    setHayArriba(el.scrollTop > 4);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (abierta) medir();
+    else if (sinopsisRef.current) sinopsisRef.current.scrollTop = 0;
+  }, [abierta, medir]);
 
   return (
     <li className={`rec-tarjeta${abierta ? ' abierta' : ''}`}>
-      <button
-        type="button"
-        className="rec-poster"
-        onClick={() => setAbierta((v) => !v)}
-        aria-expanded={abierta}
-        aria-label={`${item.title}: ${abierta ? 'ocultar' : 'ver'} sinopsis`}
-      >
-        {item.posterPath ? (
-          <img src={`${URL_POSTER}${item.posterPath}`} alt="" loading="lazy" width="342" height="513" />
-        ) : (
-          <span className="rec-sin-poster" aria-hidden="true">{item.title}</span>
-        )}
-        <span className="rec-sinopsis">
-          <span className="rec-sinopsis-texto">{item.overview || 'Sin sinopsis disponible.'}</span>
-        </span>
-      </button>
+      <div className="rec-poster" onMouseEnter={medir}>
+        <button
+          type="button"
+          className="rec-poster-boton"
+          onClick={() => setAbierta((v) => !v)}
+          aria-expanded={abierta}
+          aria-controls={idSinopsis}
+          aria-label={`${item.title}: ${abierta ? 'ocultar' : 'ver'} sinopsis`}
+        >
+          {item.posterPath ? (
+            <img src={`${URL_POSTER}${item.posterPath}`} alt="" loading="lazy" width="342" height="513" />
+          ) : (
+            <span className="rec-sin-poster" aria-hidden="true">{item.title}</span>
+          )}
+        </button>
+        {/* Va fuera del botón para que se pueda scrollear con el dedo, la rueda o el teclado.
+            Tocarla sin arrastrar la cierra, igual que tocar el póster. */}
+        <div
+          id={idSinopsis}
+          ref={sinopsisRef}
+          className={`rec-sinopsis${hayMas ? ' hay-mas' : ''}${hayArriba ? ' hay-arriba' : ''}`}
+          role="region"
+          aria-label={`Sinopsis de ${item.title}`}
+          tabIndex={abierta ? 0 : -1}
+          onScroll={medir}
+          onClick={() => setAbierta(false)}
+        >
+          <p className="rec-sinopsis-texto">{item.overview || 'Sin sinopsis disponible.'}</p>
+        </div>
+      </div>
 
       <button
         type="button"
