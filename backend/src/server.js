@@ -1,6 +1,8 @@
 import { env } from './config/env.js';
 import { createApp } from './app.js';
 import { createSupabaseVerifier } from './lib/supabase.js';
+import { disconnectPrisma } from './lib/prisma.js';
+import { registerShutdown } from './lib/shutdown.js';
 import { createTmdbClient } from './services/tmdb.js';
 import { recommendationsRouter } from './routes/recommendations.js';
 import { createRepositories } from './repositories/index.js';
@@ -18,6 +20,9 @@ const app = createApp({
   }),
 });
 
-app.listen(env.PORT, () => {
+const server = app.listen(env.PORT, () => {
   console.log(`Butaca API escuchando en http://localhost:${env.PORT}`);
 });
+
+// Al detener o redesplegar (SIGTERM/SIGINT): termina las solicitudes en curso y cierra Prisma.
+registerShutdown({ server, cleanup: disconnectPrisma });

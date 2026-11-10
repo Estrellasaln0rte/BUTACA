@@ -9,7 +9,12 @@ Las pruebas inyectan un doble, sin usar `.env`, Supabase ni TMDB.
 Los repositorios están conectados en `backend/src/server.js`. Las rutas existentes
 de emociones, favoritos y dashboard los reciben a través de `createApp`; la ruta
 de recomendaciones guarda el historial después de consultar TMDB y antes de
-responder. Se conservan los contratos HTTP y el algoritmo de recomendaciones.
+responder. Si guardarlo falla, el error queda en el log y la ruta responde igual
+200 con las recomendaciones: el historial no bloquea al usuario. Se conservan los
+contratos HTTP y el algoritmo de recomendaciones.
+
+Al recibir `SIGTERM` o `SIGINT`, `server.js` deja de aceptar conexiones, termina
+las solicitudes en curso y llama a `disconnectPrisma()` (ver `src/lib/shutdown.js`).
 
 En el entorno actual de Supabase ya se aplicaron y verificaron, en este orden:
 
