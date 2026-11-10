@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { agregarFavorita, obtenerFavoritas, obtenerRecomendaciones, quitarFavorita } from '../services/api.js';
 import { EMOCIONES } from '../utils/emociones.js';
-import { animoDeEmocion, aplicarAura } from '../utils/animos.js';
+import { ANIMOS, animoDeEmocion, aplicarAura } from '../utils/animos.js';
 import FondoVivo from '../components/ui/FondoVivo.jsx';
 import Mascota from '../components/mascota/Mascota.jsx';
 import '../styles/recomendaciones.css';
@@ -48,7 +48,9 @@ function Tarjeta({ item, tipo, esFavorita, onFavorita }) {
         ) : (
           <span className="rec-sin-poster" aria-hidden="true">{item.title}</span>
         )}
-        <span className="rec-sinopsis">{item.overview || 'Sin sinopsis disponible.'}</span>
+        <span className="rec-sinopsis">
+          <span className="rec-sinopsis-texto">{item.overview || 'Sin sinopsis disponible.'}</span>
+        </span>
       </button>
 
       <button
@@ -186,6 +188,14 @@ export default function Recomendaciones() {
     setParametros(siguientes, { replace: true });
   }
 
+  // Explorar otro ánimo desde acá no se guarda en el historial: solo cambia lo que se muestra.
+  function cambiarAnimo(nuevo) {
+    if (nuevo.id === animo.id) return;
+    const siguientes = new URLSearchParams(parametros);
+    siguientes.set('emotion', nuevo.emocion);
+    setParametros(siguientes);
+  }
+
   if (!valida) return <Navigate to="/" replace />;
 
   const primeraCarga = cargando && items.length === 0;
@@ -230,6 +240,23 @@ export default function Recomendaciones() {
             <Link to="/" className="rec-enlace">
               Leer mi ánimo otra vez
             </Link>
+          </div>
+
+          <div className="rec-animos" role="group" aria-label="Ver recomendaciones para otro ánimo">
+            <span className="rec-animos-titulo">Ver para otro ánimo:</span>
+            {ANIMOS.map((a) => (
+              <button
+                key={a.id}
+                type="button"
+                className={`rec-animo${a.id === animo.id ? ' activo' : ''}`}
+                style={{ '--color-animo': a.brillo }}
+                aria-pressed={a.id === animo.id}
+                onClick={() => cambiarAnimo(a)}
+              >
+                <span className="rec-animo-punto" aria-hidden="true" />
+                {a.nombre}
+              </button>
+            ))}
           </div>
         </header>
 
