@@ -3,6 +3,10 @@
 // con un pliegue leve donde nace cada extremidad. Sombras suaves y oclusión ambiental para el volumen.
 // Se renderiza grande y se reduce (supersampling) para bordes limpios.
 
+// Pose a renderizar: ?pose=frente (por defecto) o ?pose=tapa (se tapa los ojos)
+const POSES = { frente: 0, tapa: 1 };
+const POSE = POSES[new URLSearchParams(location.search).get('pose')] ?? 0;
+
 const TAM_RENDER = 1800; // px del render interno
 const TAM_SALIDA = 720; // px del PNG final
 
@@ -14,6 +18,13 @@ void main() { gl_Position = vec4(pos, 0.0, 1.0); }
 const fragmento = `
 precision highp float;
 uniform vec2 resolucion;
+uniform float pose;
+
+float sdCapsula(vec3 p, vec3 a, vec3 b, float r) {
+  vec3 pa = p - a, ba = b - a;
+  float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+  return length(pa - ba * h) - r;
+}
 
 float sdElipsoide(vec3 p, vec3 r) {
   float k0 = length(p / r);
@@ -28,13 +39,17 @@ float smin(float a, float b, float k) {
 
 mat2 rot(float a) { float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
 
-// Figura: devuelve distancia; material en .y (1 cuerpo, 2 ojo)
-vec2 mapa(vec3 p) {
-  // Cuerpo: gota redondeada, más ancha abajo
+// Cuerpo solo: gota redondeada, más ancha abajo
+float sdCuerpo(vec3 p) {
   vec3 q = p;
   float ancho = 1.0 - 0.11 * q.y;
   q.xz /= ancho;
-  float cuerpo = sdElipsoide(q, vec3(0.98, 0.93, 0.86)) * 0.9;
+  return sdElipsoide(q, vec3(0.98, 0.93, 0.86)) * 0.9;
+}
+
+// Figura: devuelve distancia; material en .y (1 cuerpo, 2 ojo)
+vec2 mapa(vec3 p) {
+  float cuerpo = sdCuerpo(p);
 
   // Simetría izquierda/derecha para extremidades
   vec3 s = vec3(abs(p.x), p.y, p.z);
@@ -44,6 +59,12 @@ vec2 mapa(vec3 p) {
   b.xy = rot(0.34) * b.xy;
   b.yz = rot(-0.15) * b.yz;
   float brazo = sdElipsoide(b, vec3(0.175, 0.33, 0.17));
+  if (pose > 0.5) {
+    // Se tapa los ojos: cada bracito sube desde el costado hasta la cara
+    float brazoTapa = sdCapsula(s, vec3(0.8, -0.12, 0.36), vec3(0.22, 0.17, 0.93), 0.15);
+    float mano = sdElipsoide(s - vec3(0.2, 0.19, 0.95), vec3(0.17, 0.15, 0.1));
+    brazo = smin(brazoTapa, mano, 0.08);
+  }
 
   // Patitas: nubes redondas hacia adelante, apoyadas en el piso
   vec3 f = s - vec3(0.32, -0.82, 0.55);
@@ -137,7 +158,9 @@ void main() {
       // Mejillas rosadas pintadas sobre la superficie
       vec2 mj = vec2(abs(p.x) - 0.27, p.y - 0.13);
       mj.x /= 1.25;
-      float mejilla = (1.0 - smoothstep(0.03, 0.058, length(mj))) * step(0.0, p.z);
+      // Solo sobre la cara: no se pinta en las manos cuando tapan los ojos
+      float enCara = 1.0 - smoothstep(0.004, 0.02, sdCuerpo(p));
+      float mejilla = (1.0 - smoothstep(0.03, 0.058, length(mj))) * step(0.0, p.z) * enCara;
       base = mix(base, vec3(0.93, 0.5, 0.56), mejilla * 0.9);
 
       // Difusa envolvente (aspecto suave, como un material con un poco de translucidez)
@@ -207,6 +230,7 @@ const loc = gl.getAttribLocation(prog, 'pos');
 gl.enableVertexAttribArray(loc);
 gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
 gl.uniform2f(gl.getUniformLocation(prog, 'resolucion'), TAM_RENDER, TAM_RENDER);
+gl.uniform1f(gl.getUniformLocation(prog, 'pose'), POSE);
 gl.viewport(0, 0, TAM_RENDER, TAM_RENDER);
 gl.clearColor(0, 0, 0, 0);
 gl.clear(gl.COLOR_BUFFER_BIT);
@@ -233,4 +257,5 @@ ctx.drawImage(origen, 0, 0, TAM_SALIDA, TAM_SALIDA);
 const url = salida.toDataURL('image/png');
 document.getElementById('resultado').src = url;
 document.getElementById('descargar').href = url;
+document.getElementById('descargar').download = `mascota-${Object.keys(POSES)[POSE]}.png`;
 window.renderListo = url;

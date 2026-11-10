@@ -37,7 +37,7 @@ export const TV_GENRES = Object.freeze({
 const M = MOVIE_GENRES;
 const T = TV_GENRES;
 
-// Una entrada por cada emoción de schemas/emotions.js (las 7 de face-api.js).
+// Una entrada por cada emoción de schemas/emotions.js (las 7 de face-api.js + tired).
 // Las pruebas fallan si falta alguna o si se usa un ID que no existe para ese tipo.
 export const MOOD_GENRES = Object.freeze({
   movie: Object.freeze({
@@ -48,6 +48,7 @@ export const MOOD_GENRES = Object.freeze({
     disgusted: [M.ROMANCE, M.FANTASY], // algo amable para limpiar la sensación
     surprised: [M.MYSTERY, M.SCIENCE_FICTION], // seguir con la intriga
     neutral: [M.DRAMA, M.ADVENTURE, M.SCIENCE_FICTION], // variedad para descubrir
+    tired: [M.ANIMATION, M.COMEDY, M.FAMILY], // algo liviano, sin exigir atención
   }),
   tv: Object.freeze({
     happy: [T.COMEDY, T.ACTION_ADVENTURE],
@@ -57,6 +58,7 @@ export const MOOD_GENRES = Object.freeze({
     disgusted: [T.FAMILY, T.SCI_FI_FANTASY],
     surprised: [T.MYSTERY, T.SCI_FI_FANTASY],
     neutral: [T.DRAMA, T.SCI_FI_FANTASY],
+    tired: [T.COMEDY, T.ANIMATION, T.FAMILY],
   }),
 });
 

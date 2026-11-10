@@ -1,54 +1,50 @@
-/* Estilos de la barra de sesión y la detección de ánimo (Front 2), pasados a la paleta clara.
-   El login vive en login.css. */
-.acceso,
-.deteccion,
+/* Estilos de la barra de sesión y del mensaje de carga (Front 2), en la paleta de Butaca.
+   El login vive en login.css y la detección en deteccion.css. */
 .barra-sesion,
 .acceso-mensaje {
-  /* Puente con tokens.css: mismos nombres que usaba Front 2, ahora en la paleta clara de arcilla */
-  --telon: var(--crema);
-  --butaca: var(--crema-clara);
-  --butaca-clara: var(--rosa-polvo);
-  --marquesina: var(--ambar);
-  --pantalla: var(--noche);
-  --polvo: var(--vino);
-  --error: var(--frambuesa);
   font-family: var(--fuente-texto);
-  color: var(--pantalla);
+  color: var(--crema);
+}
+
+body {
+  background: #1c1030;
 }
 
 .acceso-mensaje {
   padding: 2rem 1.25rem;
   text-align: center;
-  color: var(--vino);
+  color: var(--rosa-polvo);
 }
 
-.acceso :focus-visible,
-.deteccion :focus-visible,
 .barra-sesion :focus-visible {
-  outline: 3px solid var(--frambuesa);
+  outline: 3px solid var(--ambar);
   outline-offset: 3px;
 }
 
-/* Barra de sesión */
+/* Barra de sesión: vidrio oscuro sobre el fondo de colores */
 .barra-sesion {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: 1rem;
   padding: 0.75rem 1.25rem;
-  background: var(--butaca);
-  border-bottom: 1px solid var(--butaca-clara);
+  background: rgba(26, 24, 54, 0.55);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(224, 180, 178, 0.2);
 }
 
 .barra-sesion-marca {
   font-family: var(--fuente-titulo);
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--ciruela);
+  color: var(--crema);
   margin-right: auto;
 }
 
 .barra-sesion-usuario {
-  color: var(--polvo);
+  color: var(--rosa-polvo);
   font-size: 0.9rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -59,150 +55,20 @@
   font: inherit;
   padding: 0.4rem 0.9rem;
   border-radius: 999px;
-  border: 1px solid var(--butaca-clara);
+  border: 1px solid rgba(224, 180, 178, 0.45);
   background: transparent;
-  color: var(--pantalla);
+  color: var(--crema);
   cursor: pointer;
   white-space: nowrap;
-}
-
-/* Detección */
-.deteccion {
-  max-width: 40rem;
-  margin: 0 auto;
-  padding: 3rem 1.25rem 4rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.deteccion-permiso,
-.deteccion-camara,
-.deteccion-resultado {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-}
-
-.deteccion-camara[hidden] {
-  display: none;
-}
-
-.deteccion-titulo {
-  margin: 0;
-  font-family: var(--fuente-titulo);
-  color: var(--ciruela);
-  font-size: clamp(2rem, 6vw, 3rem);
-  font-weight: 800;
-  line-height: 1.05;
-}
-
-.deteccion-texto {
-  margin: 0;
-  color: var(--polvo);
-  max-width: 34rem;
-  line-height: 1.55;
-}
-
-.deteccion-privacidad {
-  margin: 0.5rem 0;
-  padding: 1.1rem 1.25rem 1.1rem 2.5rem;
-  text-align: left;
-  border-radius: 14px;
-  background: var(--butaca);
-  border: 1px solid var(--butaca-clara);
-  color: var(--pantalla);
-  line-height: 1.6;
-  box-shadow: var(--arcilla);
-}
-
-.deteccion-privacidad li + li {
-  margin-top: 0.35rem;
-}
-
-.deteccion-marco {
-  width: min(100%, 30rem);
-  aspect-ratio: 4 / 3;
-  border-radius: 18px;
-  overflow: hidden;
-  background: #000;
-  border: 3px solid var(--butaca-clara);
-}
-
-.deteccion-marco.leyendo {
-  border-color: var(--marquesina);
-  box-shadow: 0 0 0 8px color-mix(in srgb, var(--ambar) 35%, transparent);
-}
-
-.deteccion-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scaleX(-1);
-}
-
-.deteccion-acciones {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.deteccion-boton {
-  font: inherit;
-  font-weight: 700;
-  padding: 0.8rem 1.6rem;
-  border-radius: 999px;
-  border: none;
-  background: var(--marquesina);
-  color: var(--noche);
-  cursor: pointer;
-  box-shadow: var(--arcilla), 0 5px 0 rgba(66, 22, 75, 0.3);
   transition:
-    transform var(--dur-rapida) ease,
-    box-shadow var(--dur-rapida) ease;
+    background-color var(--dur-media) ease,
+    transform var(--dur-rapida) ease;
 }
 
-.deteccion-boton:hover:not(:disabled) {
-  transform: translateY(-2px);
+.barra-sesion-salir:hover {
+  background: rgba(224, 180, 178, 0.1);
 }
 
-.deteccion-boton:active:not(:disabled) {
-  transform: translateY(4px);
-  box-shadow: var(--arcilla-hundida);
-}
-
-.deteccion-boton.secundario {
-  background: transparent;
-  color: var(--pantalla);
-  border: 1px solid var(--butaca-clara);
-}
-
-.deteccion-boton:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.deteccion-emoji {
-  font-size: 6rem;
-  line-height: 1;
-}
-
-.deteccion-error {
-  margin: 1.25rem 0 0;
-  padding: 0.85rem 1rem;
-  border-left: 3px solid var(--error);
-  background: color-mix(in srgb, var(--frambuesa) 10%, var(--crema-clara));
-  color: var(--error);
-  text-align: left;
-}
-
-.deteccion-aviso {
-  margin: 1rem 0 0;
-  color: var(--polvo);
-  font-size: 0.9rem;
+.barra-sesion-salir:active {
+  transform: translateY(2px);
 }
