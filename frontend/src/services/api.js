@@ -71,3 +71,9 @@ export function quitarFavorita(mediaType, tmdbId) {
 export function obtenerTablero(dias) {
   return pedirAlBackend(`/dashboard?days=${dias}`);
 }
+
+// Búsqueda por título en todo TMDB. El back limita a 30 por minuto: buscar al dejar de escribir.
+export function buscarTitulos(consulta, tipo, pagina) {
+  const parametros = new URLSearchParams({ query: consulta, mediaType: tipo, page: pagina });
+  return pedirAlBackend(`/search?${parametros}`);
+}
