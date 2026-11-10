@@ -112,3 +112,49 @@ describe('GET /api/recommendations', () => {
     expect(res.body).toEqual({ error: 'Error interno del servidor' });
   });
 });
+
+describe('GET /api/recommendations: historial', () => {
+  // Repositorio falso: solo registra con qué se llamó createMany.
+  const buildWithRepo = () => {
+    const tmdb = makeFakeTmdb();
+    const recommendationsRepo = { createMany: vi.fn(async () => ({ count: 1 })) };
+    const app = createApp({
+      frontendUrl: 'http://localhost:5173',
+      verifyToken: fakeVerifyToken,
+      recommendationsRouter: recommendationsRouter({ tmdb, recommendationsRepo }),
+    });
+    return { app, tmdb, recommendationsRepo };
+  };
+
+  it('por defecto guarda en el historial lo recomendado, con el usuario de la sesión', async () => {
+    const { app, recommendationsRepo } = buildWithRepo();
+    const res = await request(app).get('/api/recommendations?emotion=sad').set(ana);
+
+    expect(res.status).toBe(200);
+    expect(recommendationsRepo.createMany).toHaveBeenCalledWith('user-ana', [
+      { emotion: 'sad', mediaType: 'movie', tmdbId: ITEM.tmdbId, genreIds: [35, 16, 10751] },
+    ]);
+  });
+
+  it('con history=false responde lo mismo pero no guarda nada', async () => {
+    const { app, recommendationsRepo } = buildWithRepo();
+    const conHistorial = await request(app).get('/api/recommendations?emotion=sad').set(ana);
+    recommendationsRepo.createMany.mockClear();
+
+    const sinHistorial = await request(app).get('/api/recommendations?emotion=sad&history=false').set(ana);
+
+    expect(sinHistorial.status).toBe(200);
+    expect(sinHistorial.body).toEqual(conHistorial.body);
+    expect(recommendationsRepo.createMany).not.toHaveBeenCalled();
+  });
+
+  it('history con un valor inválido responde 400 sin llamar a TMDB ni guardar', async () => {
+    const { app, tmdb, recommendationsRepo } = buildWithRepo();
+    const res = await request(app).get('/api/recommendations?emotion=sad&history=quizas').set(ana);
+
+    expect(res.status).toBe(400);
+    expect(res.body.details).toHaveProperty('history');
+    expect(tmdb.discover).not.toHaveBeenCalled();
+    expect(recommendationsRepo.createMany).not.toHaveBeenCalled();
+  });
+});

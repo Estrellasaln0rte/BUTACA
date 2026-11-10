@@ -2,10 +2,10 @@ import { Router } from 'express';
 import { validate } from '../middlewares/validate.js';
 import { recommendationsQuery } from '../schemas/recommendations.js';
 import { genresForEmotion } from '../services/moodToGenres.js';
-import { TmdbError } from '../services/tmdb.js';
+import { handleTmdbError } from './tmdbError.js';
 
-// GET /api/recommendations?emotion=sad&mediaType=movie&page=1
-// app.js ya lo monta detrás de requireAuth y del límite estricto (20/min).
+// GET /api/recommendations?emotion=sad&mediaType=movie&page=1&history=false
+// app.js ya lo monta detrás de requireAuth y del límite estricto por usuario.
 //
 // tmdb (services/tmdb.js): discover(mediaType, { genreIds, page }) → { page, totalPages, totalResults, items }
 // recommendationsRepo (repositories/recommendations.js, opcional): createMany(userId, registros)
@@ -14,7 +14,7 @@ export function recommendationsRouter({ tmdb, recommendationsRepo }) {
   const router = Router();
 
   router.get('/', validate({ query: recommendationsQuery }), async (req, res, next) => {
-    const { emotion, mediaType, page } = req.validatedQuery;
+    const { emotion, mediaType, page, history } = req.validatedQuery;
     const genres = genresForEmotion(emotion, mediaType);
     const genreIds = genres.map((g) => g.id);
 
@@ -22,17 +22,14 @@ export function recommendationsRouter({ tmdb, recommendationsRepo }) {
     try {
       result = await tmdb.discover(mediaType, { genreIds, page });
     } catch (err) {
-      if (err instanceof TmdbError) {
-        // Queda en el log del servidor; al cliente solo le llega un mensaje genérico.
-        console.error(`[tmdb] ${err.message}`, err.upstreamStatus ?? '');
-        return res.status(502).json({ error: 'El servicio de películas no está disponible, intenta de nuevo en un momento' });
-      }
-      return next(err); // cualquier otro error → 500 en errorHandler
+      return handleTmdbError(err, res, next);
     }
 
-    // El historial (lo usa el dashboard) es secundario: si no se puede guardar, se registra
-    // en el log y el usuario recibe igual sus recomendaciones, que ya se obtuvieron.
-    if (recommendationsRepo) {
+    // El historial (lo usa el dashboard) solo registra lo que se recomendó por el ánimo leído:
+    // con history=false (explorar otro ánimo, otra pestaña, "Ver más") no se guarda nada.
+    // Es secundario: si no se puede guardar, se registra en el log y el usuario recibe
+    // igual sus recomendaciones, que ya se obtuvieron.
+    if (recommendationsRepo && history) {
       try {
         await recommendationsRepo.createMany(
           req.user.id,

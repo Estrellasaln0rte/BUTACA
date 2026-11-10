@@ -14,12 +14,15 @@ import { dashboardRouter } from './routes/dashboard.js';
 //   verifyToken  → verifica el JWT de Supabase (Back 3)
 //   repos        → acceso a datos con Prisma (Back 1)
 //   recommendationsRouter → router de TMDB (Back 2); se monta protegido y con límite estricto
+//   searchRouter → búsqueda por título en TMDB (Back 2); protegido, con su propio límite
+//   limits → { general, strict, search }: opciones de express-rate-limit (las pruebas las bajan)
 export function createApp({
   frontendUrl,
   nodeEnv = 'development',
   verifyToken = async () => null, // sin verificador, TODO queda protegido (401)
   repos = {},
   recommendationsRouter,
+  searchRouter,
   limits = {},
 } = {}) {
   const app = express();
@@ -59,6 +62,11 @@ export function createApp({
 
   if (recommendationsRouter) {
     app.use('/api/recommendations', requireAuth, strictLimiter(limits.strict), recommendationsRouter);
+  }
+  if (searchRouter) {
+    // Contador propio: buscar no gasta el cupo de recomendaciones. Un poco más alto porque
+    // se busca mientras se escribe (el front espera a que la persona deje de tipear).
+    app.use('/api/search', requireAuth, strictLimiter({ limit: 30, ...limits.search }), searchRouter);
   }
   if (repos.favoritesRepo) {
     app.use('/api/favorites', requireAuth, favoritesRouter(repos));

@@ -4,6 +4,7 @@ import { createFavoriteBody, favoriteParams } from '../../src/schemas/favorites.
 import { dashboardQuery } from '../../src/schemas/dashboard.js';
 import { EMOTIONS } from '../../src/schemas/emotions.js';
 import { recommendationsQuery } from '../../src/schemas/recommendations.js';
+import { searchQuery } from '../../src/schemas/search.js';
 
 describe('schema de ánimo', () => {
   it.each(EMOTIONS)('acepta la emoción %s', (emotion) => {
@@ -61,8 +62,13 @@ describe('schema de recomendaciones', () => {
     expect(recommendationsQuery.safeParse({ emotion }).success).toBe(true);
   });
 
-  it('usa película y página 1 por defecto', () => {
-    expect(recommendationsQuery.parse({ emotion: 'sad' })).toEqual({ emotion: 'sad', mediaType: 'movie', page: 1 });
+  it('usa película, página 1 y guardar en el historial por defecto', () => {
+    expect(recommendationsQuery.parse({ emotion: 'sad' })).toEqual({
+      emotion: 'sad',
+      mediaType: 'movie',
+      page: 1,
+      history: true,
+    });
   });
 
   it('convierte page de texto a número (así llega en el query)', () => {
@@ -70,7 +76,19 @@ describe('schema de recomendaciones', () => {
       emotion: 'happy',
       mediaType: 'tv',
       page: 3,
+      history: true,
     });
+  });
+
+  it.each([
+    ['true', true],
+    ['false', false],
+  ])('history=%s se convierte a %s', (texto, valor) => {
+    expect(recommendationsQuery.parse({ emotion: 'sad', history: texto }).history).toBe(valor);
+  });
+
+  it.each(['0', 'no', 'False', ''])('rechaza history = "%s" (solo "true" o "false")', (history) => {
+    expect(recommendationsQuery.safeParse({ emotion: 'sad', history }).success).toBe(false);
   });
 
   it('exige la emoción', () => {
@@ -96,5 +114,31 @@ describe('schema de recomendaciones', () => {
 
   it('ignora params desconocidos en vez de fallar', () => {
     expect(recommendationsQuery.parse({ emotion: 'sad', _: '123' })).not.toHaveProperty('_');
+  });
+});
+
+describe('schema de búsqueda', () => {
+  it('quita espacios y usa película y página 1 por defecto', () => {
+    expect(searchQuery.parse({ query: '  coco  ' })).toEqual({ query: 'coco', mediaType: 'movie', page: 1 });
+  });
+
+  it('acepta series y convierte page', () => {
+    expect(searchQuery.parse({ query: 'dark', mediaType: 'tv', page: '2' })).toEqual({
+      query: 'dark',
+      mediaType: 'tv',
+      page: 2,
+    });
+  });
+
+  it.each([
+    ['sin texto', {}],
+    ['texto vacío', { query: '' }],
+    ['solo espacios', { query: '   ' }],
+    ['más de 100 caracteres', { query: 'a'.repeat(101) }],
+    ['texto repetido en el query (llega como arreglo)', { query: ['coco', 'up'] }],
+    ['tipo inválido', { query: 'coco', mediaType: 'anime' }],
+    ['página fuera de rango', { query: 'coco', page: '0' }],
+  ])('rechaza %s', (_caso, datos) => {
+    expect(searchQuery.safeParse(datos).success).toBe(false);
   });
 });

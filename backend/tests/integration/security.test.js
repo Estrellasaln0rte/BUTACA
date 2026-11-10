@@ -54,6 +54,18 @@ describe('seguridad', () => {
     expect(codes).toEqual([200, 200, 429]);
   });
 
+  it('el límite estricto cuenta por usuario: otro usuario desde la misma IP conserva su cupo', async () => {
+    // supertest siempre sale desde la misma IP, como varias personas en el wifi de la universidad.
+    const recs = express.Router().get('/', (_req, res) => res.json({ items: [] }));
+    const app = build({ recommendationsRouter: recs, limits: { strict: { limit: 2 } } });
+    const ana = { Authorization: 'Bearer token-ana' };
+    const beto = { Authorization: 'Bearer token-beto' };
+
+    for (let i = 0; i < 2; i++) await request(app).get('/api/recommendations').set(ana);
+    expect((await request(app).get('/api/recommendations').set(ana)).status).toBe(429);
+    expect((await request(app).get('/api/recommendations').set(beto)).status).toBe(200);
+  });
+
   it('/api/recommendations exige sesión', async () => {
     const recs = express.Router().get('/', (_req, res) => res.json({ items: [] }));
     const res = await request(build({ recommendationsRouter: recs })).get('/api/recommendations');

@@ -7,16 +7,18 @@ const mocks = vi.hoisted(() => {
   const verifyToken = vi.fn();
   const tmdb = { discover: vi.fn() };
   const router = {};
+  const searchRouterInstance = {};
   const server = {};
   const listen = vi.fn();
   const disconnectPrisma = vi.fn();
   return {
-    repos, verifyToken, tmdb, router, server, listen, disconnectPrisma,
+    repos, verifyToken, tmdb, router, searchRouterInstance, server, listen, disconnectPrisma,
     registerShutdown: vi.fn(),
     createRepositories: vi.fn(() => repos),
     createSupabaseVerifier: vi.fn(() => verifyToken),
     createTmdbClient: vi.fn(() => tmdb),
     recommendationsRouter: vi.fn(() => router),
+    searchRouter: vi.fn(() => searchRouterInstance),
     createApp: vi.fn(() => ({ listen })),
   };
 });
@@ -31,6 +33,7 @@ vi.mock('../../src/repositories/index.js', () => ({ createRepositories: mocks.cr
 vi.mock('../../src/lib/supabase.js', () => ({ createSupabaseVerifier: mocks.createSupabaseVerifier }));
 vi.mock('../../src/services/tmdb.js', () => ({ createTmdbClient: mocks.createTmdbClient }));
 vi.mock('../../src/routes/recommendations.js', () => ({ recommendationsRouter: mocks.recommendationsRouter }));
+vi.mock('../../src/routes/search.js', () => ({ searchRouter: mocks.searchRouter }));
 vi.mock('../../src/app.js', () => ({ createApp: mocks.createApp }));
 // Evita registrar señales reales en el proceso de las pruebas.
 vi.mock('../../src/lib/shutdown.js', () => ({ registerShutdown: mocks.registerShutdown }));
@@ -52,9 +55,13 @@ it('server conecta los repositorios y usa el verificador de Supabase para las ru
   expect(mocks.recommendationsRouter).toHaveBeenCalledWith({
     tmdb: mocks.tmdb, recommendationsRepo: mocks.repos.recommendationsRepo,
   });
+  // Un solo cliente de TMDB compartido. La búsqueda NO recibe repositorios: no puede escribir historial.
+  expect(mocks.createTmdbClient).toHaveBeenCalledTimes(1);
+  expect(mocks.searchRouter).toHaveBeenCalledWith({ tmdb: mocks.tmdb });
   expect(mocks.createApp).toHaveBeenCalledWith({
     frontendUrl: 'http://localhost:5173', nodeEnv: 'test',
     verifyToken: mocks.verifyToken, repos: mocks.repos, recommendationsRouter: mocks.router,
+    searchRouter: mocks.searchRouterInstance,
   });
   expect(mocks.listen).toHaveBeenCalledWith(3000, expect.any(Function));
   // Al apagar, cierra el servidor que se levantó y desconecta Prisma.

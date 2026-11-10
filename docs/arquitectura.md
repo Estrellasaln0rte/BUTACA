@@ -28,7 +28,8 @@ Documentar aquí cada endpoint a medida que se acuerde (método, ruta, body, res
 | Método | Ruta | Body | Respuesta | Estado |
 |---|---|---|---|---|
 | GET | `/api/health` | — | `{ status: "ok" }` | ✅ |
-| GET | `/api/recommendations?emotion=sad&mediaType=movie&page=1` | — | `{ emotion, mediaType, genres: [{ id, name }], page, totalPages, totalResults, items: [{ tmdbId, mediaType, title, overview, posterPath, releaseDate, rating }] }`; 502 si TMDB falla | 🔒 ✅ |
+| GET | `/api/recommendations?emotion=sad&mediaType=movie&page=1&history=true` | — | `{ emotion, mediaType, genres: [{ id, name }], page, totalPages, totalResults, items: [{ tmdbId, mediaType, title, overview, posterPath, releaseDate, rating }] }`; 502 si TMDB falla | 🔒 ✅ |
+| GET | `/api/search?query=coco&mediaType=movie&page=1` | — | `{ query, mediaType, page, totalPages, totalResults, items }` (mismos `items`); 502 si TMDB falla | 🔒 ✅ |
 | GET | `/api/favorites` | — | `{ items: [favorito] }`, del más reciente al más antiguo | 🔒 ✅ |
 | POST | `/api/favorites` | `{ tmdbId, mediaType: "movie" o "tv", title, posterPath? }` | el favorito creado (201); 409 si ya existe | 🔒 ✅ |
 | DELETE | `/api/favorites/:mediaType/:tmdbId` | — | 204 (404 si no existe) | 🔒 ✅ |
@@ -72,14 +73,30 @@ Documentar aquí cada endpoint a medida que se acuerde (método, ruta, body, res
 | `emotion` | una de las 7 emociones válidas | obligatorio |
 | `mediaType` | `movie` o `tv` | `movie` |
 | `page` | 1 a 500 (TMDB no entrega más) | `1` |
+| `history` | `true` o `false` | `true` |
 
 - Resultados en español (`es-MX`), ordenados por popularidad, sin contenido adulto y con al menos 50 votos.
 - Cada `item` tiene la misma forma que pide `POST /api/favorites`, así se puede guardar como favorito directamente.
 - Póster: `https://image.tmdb.org/t/p/w342${posterPath}` (`posterPath` puede ser `null`).
 - `genres[].name` viene en español para mostrarlo en la interfaz ("Te recomendamos Comedia y Animación").
-- Límite estricto: 20 solicitudes por minuto (gasta cuota de TMDB).
+- Límite estricto: 20 solicitudes por minuto **por usuario** (gasta cuota de TMDB). Cuenta por usuario y no por IP, para que varias personas en la misma red (por ejemplo, el wifi de la universidad) no compartan el cupo.
 - Si TMDB falla o tarda más de 5 segundos responde `502`; el detalle solo queda en el log del servidor.
-- **Guarda historial:** cada consulta registra los títulos recomendados (`emotion`, `mediaType`, `tmdbId` y los géneros buscados) para el dashboard. Por eso, aunque es un `GET`, no conviene llamarla en revisiones contra la base real. Si el historial no se puede guardar, la respuesta no cambia (200 con las recomendaciones) y el error queda en el log.
+- **Historial:** con `history=true` (por defecto) la consulta registra los títulos recomendados (`emotion`, `mediaType`, `tmdbId` y los géneros buscados) para el dashboard; con `history=false` responde igual pero no guarda nada. **Uso esperado desde el front** (pendiente de implementar): mandar `true` solo en la primera carga justo después de leer el ánimo, y `false` en todo lo que es navegación (otra pestaña, "Ver más", explorar otro ánimo, volver desde el menú). Así `recommendedGenres` refleja lo que se recomendó por el ánimo de la persona y no cuánto navegó. Mientras el front no mande el parámetro, todo se sigue guardando como antes. Si el historial no se puede guardar, la respuesta no cambia (200 con las recomendaciones) y el error queda en el log.
+
+## Búsqueda por título (TMDB)
+
+`GET /api/search` busca películas o series por nombre. Es **solo navegación**: no guarda historial ni escribe nada en la base (la ruta ni siquiera recibe repositorios).
+
+| Parámetro | Valores | Por defecto |
+|---|---|---|
+| `query` | texto de 1 a 100 caracteres (se quitan los espacios de los extremos) | obligatorio |
+| `mediaType` | `movie` o `tv` | `movie` |
+| `page` | 1 a 500 | `1` |
+
+- Resultados en español (`es-MX`), en el orden de relevancia de TMDB y sin contenido adulto. No se filtra por votos, para no esconder justo el título buscado.
+- Los `items` tienen la misma forma que en recomendaciones (sirven directo para favoritas).
+- Límite: 30 solicitudes por minuto por usuario, con un contador propio (buscar no gasta el cupo de recomendaciones). Recomendación para el front: buscar cuando la persona deja de escribir (unos 500 ms) o al apretar Enter, no en cada tecla.
+- Todavía no hay pantalla de búsqueda en el front.
 
 ### Regla ánimo → géneros
 

@@ -163,3 +163,41 @@ describe('cliente de TMDB: errores', () => {
     await expect(client(fetchImpl).discover('movie', { genreIds: [35] })).rejects.toThrow('respuesta inválida');
   });
 });
+
+describe('cliente de TMDB: búsqueda por título', () => {
+  it('llama a /search/movie con el texto, sin adultos y la página pedida', async () => {
+    const { fetchImpl, calls } = fakeFetch();
+    await client(fetchImpl).search('movie', { query: 'el club de la pelea', page: 2 });
+
+    const { url } = calls[0];
+    expect(url.pathname).toBe('/3/search/movie');
+    expect(url.searchParams.get('query')).toBe('el club de la pelea');
+    expect(url.searchParams.get('page')).toBe('2');
+    expect(url.searchParams.get('include_adult')).toBe('false');
+    expect(url.searchParams.get('language')).toBe('es-MX');
+    // A diferencia de discover, no filtra por votos ni por géneros.
+    expect(url.searchParams.has('vote_count.gte')).toBe(false);
+    expect(url.searchParams.has('with_genres')).toBe(false);
+  });
+
+  it('llama a /search/tv y normaliza igual que discover', async () => {
+    const { fetchImpl, calls } = fakeFetch({
+      body: { page: 1, total_pages: 1, total_results: 1, results: [{ id: 70523, name: 'Dark', first_air_date: '2017-12-01' }] },
+    });
+    const res = await client(fetchImpl).search('tv', { query: 'dark' });
+
+    expect(calls[0].url.pathname).toBe('/3/search/tv');
+    expect(res.items[0]).toMatchObject({ tmdbId: 70523, mediaType: 'tv', title: 'Dark', releaseDate: '2017-12-01' });
+  });
+
+  it('rechaza un mediaType inválido sin llamar a TMDB', async () => {
+    const { fetchImpl, calls } = fakeFetch();
+    await expect(client(fetchImpl).search('person', { query: 'x' })).rejects.toThrow('mediaType');
+    expect(calls).toHaveLength(0);
+  });
+
+  it('un error de TMDB se convierte en TmdbError', async () => {
+    const { fetchImpl } = fakeFetch({ status: 500 });
+    await expect(client(fetchImpl).search('movie', { query: 'coco' })).rejects.toBeInstanceOf(TmdbError);
+  });
+});
