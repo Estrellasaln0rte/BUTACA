@@ -9,7 +9,7 @@ import { TmdbError } from '../services/tmdb.js';
 //
 // tmdb (services/tmdb.js): discover(mediaType, { genreIds, page }) → { page, totalPages, totalResults, items }
 // Se inyecta para poder probar la ruta con un TMDB falso.
-export function recommendationsRouter({ tmdb }) {
+export function recommendationsRouter({ tmdb, recommendationsRepo }) {
   const router = Router();
 
   router.get('/', validate({ query: recommendationsQuery }), async (req, res, next) => {
@@ -18,6 +18,14 @@ export function recommendationsRouter({ tmdb }) {
 
     try {
       const result = await tmdb.discover(mediaType, { genreIds: genres.map((g) => g.id), page });
+      if (recommendationsRepo) {
+        await recommendationsRepo.createMany(req.user.id, result.items.map(({ tmdbId }) => ({
+          emotion,
+          mediaType,
+          tmdbId,
+          genreIds: genres.map((genre) => genre.id),
+        })));
+      }
       res.json({ emotion, mediaType, genres, ...result });
     } catch (err) {
       if (err instanceof TmdbError) {
