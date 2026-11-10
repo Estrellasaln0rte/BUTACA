@@ -1,109 +1,32 @@
-/* Estilos del login, la sesión y la detección de ánimo (Front 2). */
+/* Estilos de la barra de sesión y la detección de ánimo (Front 2), pasados a la paleta clara.
+   El login vive en login.css. */
 .acceso,
 .deteccion,
 .barra-sesion,
 .acceso-mensaje {
-  --telon: #1a0d13;
-  --butaca: #2a1520;
-  --butaca-clara: #3a1e2c;
-  --marquesina: #f0b54a;
-  --pantalla: #f6ead8;
-  --polvo: #c4a9b2;
-  --error: #ff9b8f;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Puente con tokens.css: mismos nombres que usaba Front 2, ahora en la paleta clara de arcilla */
+  --telon: var(--crema);
+  --butaca: var(--crema-clara);
+  --butaca-clara: var(--rosa-polvo);
+  --marquesina: var(--ambar);
+  --pantalla: var(--noche);
+  --polvo: var(--vino);
+  --error: var(--frambuesa);
+  font-family: var(--fuente-texto);
   color: var(--pantalla);
-}
-
-body {
-  margin: 0;
-  background: #1a0d13;
 }
 
 .acceso-mensaje {
   padding: 2rem 1.25rem;
   text-align: center;
-  color: #c4a9b2;
+  color: var(--vino);
 }
 
 .acceso :focus-visible,
 .deteccion :focus-visible,
 .barra-sesion :focus-visible {
-  outline: 3px solid var(--marquesina);
+  outline: 3px solid var(--frambuesa);
   outline-offset: 3px;
-}
-
-/* Login */
-.acceso {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 1.5rem;
-  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(240, 181, 74, 0.18), transparent 70%), var(--telon);
-}
-
-.acceso-tarjeta {
-  width: min(100%, 26rem);
-  padding: 2.25rem 2rem;
-  border-radius: 20px;
-  background: var(--butaca);
-  border: 1px solid var(--butaca-clara);
-  text-align: center;
-}
-
-.acceso-titulo {
-  margin: 0 0 0.75rem;
-  font-size: 3rem;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--marquesina);
-}
-
-.acceso-texto {
-  margin: 0 0 1.75rem;
-  color: var(--polvo);
-  line-height: 1.55;
-}
-
-.acceso-botones {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.boton-proveedor {
-  font: inherit;
-  font-weight: 700;
-  padding: 0.85rem 1rem;
-  border-radius: 999px;
-  border: none;
-  cursor: pointer;
-}
-
-.boton-google {
-  background: #ffffff;
-  color: #1f1f1f;
-}
-
-.boton-github {
-  background: #24292f;
-  color: #ffffff;
-  border: 1px solid #57606a;
-}
-
-.boton-proveedor:disabled {
-  opacity: 0.6;
-  cursor: wait;
-}
-
-.acceso-error {
-  margin: 1rem 0 0;
-  color: var(--error);
-}
-
-.acceso-nota {
-  margin: 1.5rem 0 0;
-  font-size: 0.85rem;
-  color: var(--polvo);
 }
 
 /* Barra de sesión */
@@ -117,9 +40,10 @@ body {
 }
 
 .barra-sesion-marca {
+  font-family: var(--fuente-titulo);
   font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--marquesina);
+  font-weight: 700;
+  color: var(--ciruela);
   margin-right: auto;
 }
 
@@ -169,6 +93,8 @@ body {
 
 .deteccion-titulo {
   margin: 0;
+  font-family: var(--fuente-titulo);
+  color: var(--ciruela);
   font-size: clamp(2rem, 6vw, 3rem);
   font-weight: 800;
   line-height: 1.05;
@@ -190,6 +116,7 @@ body {
   border: 1px solid var(--butaca-clara);
   color: var(--pantalla);
   line-height: 1.6;
+  box-shadow: var(--arcilla);
 }
 
 .deteccion-privacidad li + li {
@@ -207,7 +134,7 @@ body {
 
 .deteccion-marco.leyendo {
   border-color: var(--marquesina);
-  box-shadow: 0 0 0 6px rgba(240, 181, 74, 0.2);
+  box-shadow: 0 0 0 8px color-mix(in srgb, var(--ambar) 35%, transparent);
 }
 
 .deteccion-video {
@@ -232,8 +159,21 @@ body {
   border-radius: 999px;
   border: none;
   background: var(--marquesina);
-  color: #2a1408;
+  color: var(--noche);
   cursor: pointer;
+  box-shadow: var(--arcilla), 0 5px 0 rgba(66, 22, 75, 0.3);
+  transition:
+    transform var(--dur-rapida) ease,
+    box-shadow var(--dur-rapida) ease;
+}
+
+.deteccion-boton:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.deteccion-boton:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: var(--arcilla-hundida);
 }
 
 .deteccion-boton.secundario {
@@ -256,7 +196,7 @@ body {
   margin: 1.25rem 0 0;
   padding: 0.85rem 1rem;
   border-left: 3px solid var(--error);
-  background: rgba(255, 155, 143, 0.08);
+  background: color-mix(in srgb, var(--frambuesa) 10%, var(--crema-clara));
   color: var(--error);
   text-align: left;
 }

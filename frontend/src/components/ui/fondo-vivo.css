@@ -1,0 +1,74 @@
+/* Posiciones animables de cada color de la mezcla */
+@property --m1x { syntax: '<percentage>'; inherits: false; initial-value: 12%; }
+@property --m1y { syntax: '<percentage>'; inherits: false; initial-value: 18%; }
+@property --m2x { syntax: '<percentage>'; inherits: false; initial-value: 88%; }
+@property --m2y { syntax: '<percentage>'; inherits: false; initial-value: 14%; }
+@property --m3x { syntax: '<percentage>'; inherits: false; initial-value: 78%; }
+@property --m3y { syntax: '<percentage>'; inherits: false; initial-value: 86%; }
+@property --m4x { syntax: '<percentage>'; inherits: false; initial-value: 18%; }
+@property --m4y { syntax: '<percentage>'; inherits: false; initial-value: 82%; }
+@property --m5x { syntax: '<percentage>'; inherits: false; initial-value: 50%; }
+@property --m5y { syntax: '<percentage>'; inherits: false; initial-value: 45%; }
+
+.fondo-vivo {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #42164b;
+}
+
+/* Cinco colores de la paleta que se superponen y se funden entre sí, sin zonas planas */
+.fondo-mezcla {
+  position: absolute;
+  inset: -8%;
+  background:
+    radial-gradient(circle at var(--m1x) var(--m1y), #e99856 0%, rgba(233, 152, 86, 0) 42%),
+    radial-gradient(circle at var(--m2x) var(--m2y), #e0b4b2 0%, rgba(224, 180, 178, 0) 40%),
+    radial-gradient(circle at var(--m3x) var(--m3y), #a54055 0%, rgba(165, 64, 85, 0) 55%),
+    radial-gradient(circle at var(--m4x) var(--m4y), #1a1836 0%, rgba(26, 24, 54, 0) 55%),
+    radial-gradient(circle at var(--m5x) var(--m5y), #622347 0%, rgba(98, 35, 71, 0) 70%),
+    linear-gradient(135deg, #a54055 0%, #622347 45%, #42164b 100%);
+  filter: blur(40px) saturate(1.1);
+  transition: translate 800ms ease-out;
+  animation: fondo-mezcla 26s ease-in-out infinite alternate;
+}
+
+/* Velo suave: oscurece un poco el centro-abajo para que el panel y el texto resalten */
+.fondo-velo {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 60%, rgba(26, 24, 54, 0.35), transparent 75%);
+}
+
+@keyframes fondo-mezcla {
+  0% {
+    --m1x: 12%; --m1y: 18%;
+    --m2x: 88%; --m2y: 14%;
+    --m3x: 78%; --m3y: 86%;
+    --m4x: 18%; --m4y: 82%;
+    --m5x: 50%; --m5y: 45%;
+  }
+  33% {
+    --m1x: 30%; --m1y: 8%;
+    --m2x: 72%; --m2y: 30%;
+    --m3x: 92%; --m3y: 64%;
+    --m4x: 8%; --m4y: 62%;
+    --m5x: 42%; --m5y: 58%;
+  }
+  66% {
+    --m1x: 8%; --m1y: 38%;
+    --m2x: 94%; --m2y: 6%;
+    --m3x: 60%; --m3y: 96%;
+    --m4x: 30%; --m4y: 94%;
+    --m5x: 60%; --m5y: 38%;
+  }
+  100% {
+    --m1x: 22%; --m1y: 24%;
+    --m2x: 80%; --m2y: 22%;
+    --m3x: 84%; --m3y: 78%;
+    --m4x: 12%; --m4y: 74%;
+    --m5x: 48%; --m5y: 52%;
+  }
+}
