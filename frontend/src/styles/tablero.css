@@ -1,0 +1,261 @@
+/* Pantalla 6: tablero. Paneles de vidrio oscuro sobre el fondo del ánimo más frecuente.
+   Colores de los gráficos: `grafico` de utils/animos.js (validados para daltonismo; siempre con nombre al lado). */
+.tab-contenido {
+  width: min(100%, 60rem);
+}
+
+.tab-grilla {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 1.25rem;
+  transition: opacity var(--dur-media) ease;
+}
+
+.tab-grilla.cargando {
+  opacity: 0.55;
+}
+
+.tab-panel {
+  padding: 1.5rem;
+  border-radius: var(--r-l);
+  background: rgba(26, 24, 54, 0.72);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow:
+    inset 0 0 0 1px rgba(224, 180, 178, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 20px 40px -20px rgba(0, 0, 0, 0.55);
+}
+
+.tab-dias,
+.tab-generos {
+  grid-column: 1 / -1;
+}
+
+.tab-subtitulo,
+.tab-etiqueta {
+  margin: 0 0 1rem;
+  font-family: var(--fuente-titulo);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--crema);
+}
+
+.tab-etiqueta {
+  font-family: var(--fuente-texto);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(224, 180, 178, 0.9);
+}
+
+/* Dato principal */
+.tab-destacado {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.tab-numero {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-family: var(--fuente-titulo);
+  font-size: clamp(2rem, 5vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--crema);
+}
+
+.tab-nota {
+  margin: 0.5rem 0 0;
+  color: rgba(246, 235, 228, 0.75);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.tab-muestra {
+  flex: none;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 4px;
+}
+
+.tab-muestra.chica {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 3px;
+}
+
+.tab-muestra.vacio,
+.tab-dia.vacio {
+  background: rgba(246, 235, 228, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(246, 235, 228, 0.16);
+}
+
+/* Barras horizontales: finas, punta redondeada, nombre y valor siempre visibles */
+.tab-barras {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tab-barras li {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr) 4.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: var(--r-s);
+}
+
+.tab-barras li:hover .tab-barra {
+  filter: brightness(1.15);
+}
+
+.tab-barra-nombre {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--crema);
+}
+
+.tab-barra-nombre small {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(224, 180, 178, 0.85);
+}
+
+.tab-barra-pista {
+  height: 0.85rem;
+  border-radius: 0 4px 4px 0;
+  background: rgba(246, 235, 228, 0.06);
+}
+
+.tab-barra {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  border-radius: 0 4px 4px 0;
+  transition:
+    width var(--dur-telon) ease,
+    filter var(--dur-rapida) ease;
+}
+
+.tab-barra.genero {
+  background: var(--ambar);
+}
+
+.tab-barra-valor {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: right;
+  color: var(--crema);
+}
+
+.tab-barra-valor small {
+  margin-left: 0.25rem;
+  font-weight: 500;
+  color: rgba(246, 235, 228, 0.6);
+}
+
+/* Día a día */
+.tab-calendario {
+  display: grid;
+  grid-template-columns: repeat(var(--columnas, 30), minmax(0, 1fr));
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tab-calendario.dias-7 {
+  --columnas: 7;
+  gap: 6px;
+}
+
+.tab-calendario.dias-30 {
+  --columnas: 15;
+}
+
+.tab-calendario.dias-90 {
+  --columnas: 30;
+}
+
+.tab-dia {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  cursor: default;
+  transition: transform var(--dur-rapida) ease;
+}
+
+.dias-7 .tab-dia {
+  aspect-ratio: 2 / 1;
+  border-radius: 6px;
+}
+
+.tab-dia:hover,
+.tab-dia:focus-visible {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 2px var(--crema);
+  outline: none;
+  position: relative;
+  z-index: 1;
+}
+
+.tab-eje {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  color: rgba(246, 235, 228, 0.6);
+}
+
+.tab-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.1rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+  color: rgba(246, 235, 228, 0.85);
+}
+
+.tab-leyenda li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.fav-boton-enlace {
+  display: inline-block;
+  text-decoration: none;
+}
+
+@media (max-width: 720px) {
+  .tab-grilla {
+    grid-template-columns: 1fr;
+  }
+
+  .tab-panel {
+    padding: 1.2rem;
+  }
+
+  .tab-barras li {
+    grid-template-columns: 6rem minmax(0, 1fr) 3.8rem;
+    gap: 0.5rem;
+  }
+
+  .tab-calendario.dias-30 {
+    --columnas: 10;
+  }
+
+  .tab-calendario.dias-90 {
+    --columnas: 15;
+  }
+}
